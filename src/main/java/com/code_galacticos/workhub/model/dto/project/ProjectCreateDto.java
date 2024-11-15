@@ -1,4 +1,4 @@
-package com.code_galacticos.workhub.model.dto;
+package com.code_galacticos.workhub.model.dto.project;
 
 import lombok.Data;
 

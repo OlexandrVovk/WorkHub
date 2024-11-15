@@ -1,8 +1,8 @@
 package com.code_galacticos.workhub.service;
 
-import com.code_galacticos.workhub.model.dto.ProjectCreateDto;
-import com.code_galacticos.workhub.model.dto.ProjectResponseDto;
-import com.code_galacticos.workhub.model.dto.ProjectUpdateDto;
+import com.code_galacticos.workhub.model.dto.project.ProjectCreateDto;
+import com.code_galacticos.workhub.model.dto.project.ProjectResponseDto;
+import com.code_galacticos.workhub.model.dto.project.ProjectUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
