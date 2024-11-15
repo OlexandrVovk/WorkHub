@@ -17,7 +17,7 @@ public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolve
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.hasParameterAnnotation(CurrentUser.class)
-                && parameter.getParameterType().equals(String.class);
+                && parameter.getParameterType().equals(UUID.class);
     }
 
     @Override
@@ -25,6 +25,7 @@ public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolve
                                   ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest,
                                   WebDataBinderFactory binderFactory) {
-        return webRequest.getAttribute("user-id", RequestAttributes.SCOPE_REQUEST);
+        String firebaseId = (String) webRequest.getAttribute("user-id", RequestAttributes.SCOPE_REQUEST);
+        return UUID.nameUUIDFromBytes(firebaseId.getBytes());
     }
 }

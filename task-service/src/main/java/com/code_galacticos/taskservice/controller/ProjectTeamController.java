@@ -22,14 +22,14 @@ public class ProjectTeamController {
 
     @GetMapping
     public ResponseEntity<List<TeamMemberDto>> getProjectTeam(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId) {
         return ResponseEntity.ok(projectTeamService.getProjectTeam(userId, projectId));
     }
 
     @PostMapping
     public ResponseEntity<TeamMemberDto> addTeamMember(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @Valid @RequestBody TeamMemberDto memberDto) {
         return ResponseEntity.ok(projectTeamService.addTeamMember(userId, projectId, memberDto));
@@ -37,7 +37,7 @@ public class ProjectTeamController {
 
     @DeleteMapping("/{memberId}")
     public ResponseEntity<Void> removeTeamMember(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID memberId) {
         projectTeamService.removeTeamMember(userId, projectId, memberId);
@@ -46,7 +46,7 @@ public class ProjectTeamController {
 
     @PutMapping("/{memberId}/role")
     public ResponseEntity<TeamMemberDto> updateMemberRole(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID memberId,
             @Valid @RequestBody UpdateRoleDto roleDto) {
@@ -55,7 +55,7 @@ public class ProjectTeamController {
 
     @GetMapping("/{memberId}/tasks")
     public ResponseEntity<List<AssignTaskDto>> getMemberTasks(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID memberId) {
         return ResponseEntity.ok(projectTeamService.getMemberTasks(userId, projectId, memberId));
@@ -63,7 +63,7 @@ public class ProjectTeamController {
 
     @PostMapping("/{memberId}/tasks/{taskId}")
     public ResponseEntity<AssignTaskDto> assignTask(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID memberId,
             @PathVariable UUID taskId) {
@@ -72,7 +72,7 @@ public class ProjectTeamController {
 
     @DeleteMapping("/{memberId}/tasks/{taskId}")
     public ResponseEntity<Void> unassignTask(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID memberId,
             @PathVariable UUID taskId) {
@@ -82,14 +82,14 @@ public class ProjectTeamController {
 
     @GetMapping("/available")
     public ResponseEntity<List<TeamMemberDto>> getAvailableMembers(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId) {
         return ResponseEntity.ok(projectTeamService.getAvailableMembers(userId, projectId));
     }
 
     @GetMapping("/{memberId}/workload")
     public ResponseEntity<TeamMemberDto> getMemberWorkload(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID memberId) {
         return ResponseEntity.ok(projectTeamService.getMemberWorkload(userId, projectId, memberId));

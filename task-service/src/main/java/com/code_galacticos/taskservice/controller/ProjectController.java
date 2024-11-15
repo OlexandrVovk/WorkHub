@@ -24,20 +24,20 @@ public class ProjectController {
 
     @GetMapping
     public ResponseEntity<List<ProjectResponseDto>> getAllProjects(
-            @CurrentUser String userId) {
+            @CurrentUser UUID userId) {
         return ResponseEntity.ok(projectService.getAllProjects(userId));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProjectResponseDto> getProjectById(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID id) {
         return ResponseEntity.ok(projectService.getProjectById(userId, id));
     }
 
     @PostMapping
     public ResponseEntity<ProjectResponseDto> createProject(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @Valid @RequestBody ProjectCreateDto projectDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(projectService.createProject(userId, projectDto));
@@ -45,7 +45,7 @@ public class ProjectController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ProjectResponseDto> updateProject(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID id,
             @Valid @RequestBody ProjectUpdateDto projectDto) {
         return ResponseEntity.ok(projectService.updateProject(userId, id, projectDto));
@@ -53,7 +53,7 @@ public class ProjectController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID id) {
         projectService.deleteProject(userId, id);
         return ResponseEntity.noContent().build();

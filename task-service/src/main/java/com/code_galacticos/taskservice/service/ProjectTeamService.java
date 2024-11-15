@@ -11,37 +11,37 @@ import java.util.UUID;
 
 @Service
 public class ProjectTeamService {
-    public List<TeamMemberDto> getProjectTeam(String userId, UUID projectId){
+    public List<TeamMemberDto> getProjectTeam(UUID userId, UUID projectId){
         return null;
     }
 
-    public TeamMemberDto addTeamMember(String userId, UUID projectId, TeamMemberDto memberDto){
+    public TeamMemberDto addTeamMember(UUID userId, UUID projectId, TeamMemberDto memberDto){
         return null;
     };
 
-    public void removeTeamMember(String userId, UUID projectId, UUID memberId){
+    public void removeTeamMember(UUID userId, UUID projectId, UUID memberId){
     }
 
-    public TeamMemberDto updateMemberRole(String userId, UUID projectId, UUID memberId, UpdateRoleDto roleDto){
+    public TeamMemberDto updateMemberRole(UUID userId, UUID projectId, UUID memberId, UpdateRoleDto roleDto){
         return null;
     }
 
-    public List<AssignTaskDto> getMemberTasks(String userId, UUID projectId, UUID memberId){
+    public List<AssignTaskDto> getMemberTasks(UUID userId, UUID projectId, UUID memberId){
         return null;
     }
 
-    public AssignTaskDto assignTask(String userId, UUID projectId, UUID memberId, UUID taskId){
+    public AssignTaskDto assignTask(UUID userId, UUID projectId, UUID memberId, UUID taskId){
         return null;
     }
 
-    public void unassignTask(String userId, UUID projectId, UUID memberId, UUID taskId){
+    public void unassignTask(UUID userId, UUID projectId, UUID memberId, UUID taskId){
     }
 
-    public List<TeamMemberDto> getAvailableMembers(String userId, UUID projectId){
+    public List<TeamMemberDto> getAvailableMembers(UUID userId, UUID projectId){
         return null;
     }
 
-    public TeamMemberDto getMemberWorkload(String userId, UUID projectId, UUID memberId){
+    public TeamMemberDto getMemberWorkload(UUID userId, UUID projectId, UUID memberId){
         return null;
     }
 }

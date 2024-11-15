@@ -21,14 +21,14 @@ public class TaskController {
 
     @GetMapping
     public ResponseEntity<List<TaskResponseDto>> getAllTasks(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId) {
         return ResponseEntity.ok(taskService.getAllTasks(userId, projectId));
     }
 
     @PostMapping
     public ResponseEntity<TaskResponseDto> createTask(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @Valid @RequestBody TaskCreateDto taskDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -37,7 +37,7 @@ public class TaskController {
 
     @GetMapping("/{taskId}")
     public ResponseEntity<TaskResponseDto> getTaskById(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID taskId) {
         return ResponseEntity.ok(taskService.getTaskById(userId, projectId, taskId));
@@ -45,7 +45,7 @@ public class TaskController {
 
     @PutMapping("/{taskId}")
     public ResponseEntity<TaskResponseDto> updateTask(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID taskId,
             @Valid @RequestBody TaskUpdateDto taskDto) {
@@ -54,7 +54,7 @@ public class TaskController {
 
     @DeleteMapping("/{taskId}")
     public ResponseEntity<Void> deleteTask(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID taskId) {
         taskService.deleteTask(userId, projectId, taskId);
@@ -63,7 +63,7 @@ public class TaskController {
 
     @PutMapping("/{taskId}/priority")
     public ResponseEntity<TaskResponseDto> updateTaskPriority(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID taskId,
             @Valid @RequestBody UpdateTaskPriorityDto priorityDto) {
@@ -72,7 +72,7 @@ public class TaskController {
 
     @PutMapping("/{taskId}/assignee")
     public ResponseEntity<TaskResponseDto> updateTaskAssignee(
-            @CurrentUser String userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID taskId,
             @Valid @RequestBody UpdateTaskAssigneeDto assigneeDto) {

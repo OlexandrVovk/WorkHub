@@ -14,22 +14,22 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ProjectService {
 
-    public List<ProjectResponseDto> getAllProjects(String userId) {
+    public List<ProjectResponseDto> getAllProjects(UUID userId) {
         return Collections.emptyList();
     }
 
-    public ProjectResponseDto getProjectById(String userId, UUID projectId) {
+    public ProjectResponseDto getProjectById(UUID userId, UUID projectId) {
         return null;
     }
 
-    public ProjectResponseDto createProject(String userId, ProjectCreateDto projectDto) {
+    public ProjectResponseDto createProject(UUID userId, ProjectCreateDto projectDto) {
         return null;
     }
 
-    public ProjectResponseDto updateProject(String userId, UUID projectId, ProjectUpdateDto projectDto) {
+    public ProjectResponseDto updateProject(UUID userId, UUID projectId, ProjectUpdateDto projectDto) {
         return null;
     }
 
-    public void deleteProject(String userId, UUID projectId) {
+    public void deleteProject(UUID userId, UUID projectId) {
     }
 }
