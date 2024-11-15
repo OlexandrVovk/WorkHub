@@ -1,5 +1,6 @@
 package com.code_galacticos.taskservice.controller;
 
+import com.code_galacticos.taskservice.annotation.CurrentUser;
 import com.code_galacticos.taskservice.model.dto.project.ProjectCreateDto;
 import com.code_galacticos.taskservice.model.dto.project.ProjectResponseDto;
 import com.code_galacticos.taskservice.model.dto.project.ProjectUpdateDto;
@@ -23,20 +24,20 @@ public class ProjectController {
 
     @GetMapping
     public ResponseEntity<List<ProjectResponseDto>> getAllProjects(
-            @RequestHeader("user-id") UUID userId) {
+            @CurrentUser UUID userId) {
         return ResponseEntity.ok(projectService.getAllProjects(userId));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProjectResponseDto> getProjectById(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID id) {
         return ResponseEntity.ok(projectService.getProjectById(userId, id));
     }
 
     @PostMapping
     public ResponseEntity<ProjectResponseDto> createProject(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser UUID userId,
             @Valid @RequestBody ProjectCreateDto projectDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(projectService.createProject(userId, projectDto));
@@ -44,7 +45,7 @@ public class ProjectController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ProjectResponseDto> updateProject(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID id,
             @Valid @RequestBody ProjectUpdateDto projectDto) {
         return ResponseEntity.ok(projectService.updateProject(userId, id, projectDto));
@@ -52,30 +53,9 @@ public class ProjectController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID id) {
         projectService.deleteProject(userId, id);
         return ResponseEntity.noContent().build();
     }
-//
-//    @GetMapping("/{id}/dashboard")
-//    public ResponseEntity<DashboardDto> getProjectDashboard(
-//            @RequestHeader("user-id") UUID userId,
-//            @PathVariable UUID id) {
-//        return ResponseEntity.ok(projectService.getProjectDashboard(userId, id));
-//    }
-//
-//    @GetMapping("/{id}/statistics")
-//    public ResponseEntity<StatisticsDto> getProjectStatistics(
-//            @RequestHeader("user-id") UUID userId,
-//            @PathVariable UUID id) {
-//        return ResponseEntity.ok(projectService.getProjectStatistics(userId, id));
-//    }
-//
-//    @GetMapping("/search")
-//    public ResponseEntity<List<ProjectResponseDto>> searchProjects(
-//            @RequestHeader("user-id") UUID userId,
-//            @RequestParam String query) {
-//        return ResponseEntity.ok(projectService.searchProjects(userId, query));
-//    }
 }

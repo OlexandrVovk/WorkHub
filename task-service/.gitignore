@@ -31,3 +31,5 @@ build/
 
 ### VS Code ###
 .vscode/
+
+task-service/src/main/resources/firebase-service-account.json
