@@ -1,5 +1,6 @@
 package com.code_galacticos.taskservice.controller;
 
+import com.code_galacticos.taskservice.annotation.CurrentUser;
 import com.code_galacticos.taskservice.model.dto.team.AssignTaskDto;
 import com.code_galacticos.taskservice.model.dto.team.TeamMemberDto;
 import com.code_galacticos.taskservice.model.dto.team.UpdateRoleDto;
@@ -21,14 +22,14 @@ public class ProjectTeamController {
 
     @GetMapping
     public ResponseEntity<List<TeamMemberDto>> getProjectTeam(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser String userId,
             @PathVariable UUID projectId) {
         return ResponseEntity.ok(projectTeamService.getProjectTeam(userId, projectId));
     }
 
     @PostMapping
     public ResponseEntity<TeamMemberDto> addTeamMember(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser String userId,
             @PathVariable UUID projectId,
             @Valid @RequestBody TeamMemberDto memberDto) {
         return ResponseEntity.ok(projectTeamService.addTeamMember(userId, projectId, memberDto));
@@ -36,7 +37,7 @@ public class ProjectTeamController {
 
     @DeleteMapping("/{memberId}")
     public ResponseEntity<Void> removeTeamMember(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser String userId,
             @PathVariable UUID projectId,
             @PathVariable UUID memberId) {
         projectTeamService.removeTeamMember(userId, projectId, memberId);
@@ -45,7 +46,7 @@ public class ProjectTeamController {
 
     @PutMapping("/{memberId}/role")
     public ResponseEntity<TeamMemberDto> updateMemberRole(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser String userId,
             @PathVariable UUID projectId,
             @PathVariable UUID memberId,
             @Valid @RequestBody UpdateRoleDto roleDto) {
@@ -54,7 +55,7 @@ public class ProjectTeamController {
 
     @GetMapping("/{memberId}/tasks")
     public ResponseEntity<List<AssignTaskDto>> getMemberTasks(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser String userId,
             @PathVariable UUID projectId,
             @PathVariable UUID memberId) {
         return ResponseEntity.ok(projectTeamService.getMemberTasks(userId, projectId, memberId));
@@ -62,7 +63,7 @@ public class ProjectTeamController {
 
     @PostMapping("/{memberId}/tasks/{taskId}")
     public ResponseEntity<AssignTaskDto> assignTask(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser String userId,
             @PathVariable UUID projectId,
             @PathVariable UUID memberId,
             @PathVariable UUID taskId) {
@@ -71,7 +72,7 @@ public class ProjectTeamController {
 
     @DeleteMapping("/{memberId}/tasks/{taskId}")
     public ResponseEntity<Void> unassignTask(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser String userId,
             @PathVariable UUID projectId,
             @PathVariable UUID memberId,
             @PathVariable UUID taskId) {
@@ -81,14 +82,14 @@ public class ProjectTeamController {
 
     @GetMapping("/available")
     public ResponseEntity<List<TeamMemberDto>> getAvailableMembers(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser String userId,
             @PathVariable UUID projectId) {
         return ResponseEntity.ok(projectTeamService.getAvailableMembers(userId, projectId));
     }
 
     @GetMapping("/{memberId}/workload")
     public ResponseEntity<TeamMemberDto> getMemberWorkload(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser String userId,
             @PathVariable UUID projectId,
             @PathVariable UUID memberId) {
         return ResponseEntity.ok(projectTeamService.getMemberWorkload(userId, projectId, memberId));

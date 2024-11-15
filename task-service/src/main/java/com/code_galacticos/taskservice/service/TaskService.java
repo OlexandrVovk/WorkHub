@@ -12,31 +12,30 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TaskService {
 
-    public List<TaskResponseDto> getAllTasks(UUID userId, UUID projectId) {
+    public List<TaskResponseDto> getAllTasks(String userId, UUID projectId) {
         return Collections.emptyList();
     }
 
-    public TaskResponseDto getTaskById(UUID userId, UUID projectId, UUID taskId) {
+    public TaskResponseDto getTaskById(String userId, UUID projectId, UUID taskId) {
         return null;
     }
 
-    public TaskResponseDto createTask(UUID userId, UUID projectId, TaskCreateDto taskCreateDto) {
+    public TaskResponseDto createTask(String userId, UUID projectId, TaskCreateDto taskCreateDto) {
         return null;
     }
 
-    public TaskResponseDto updateTask(UUID userId, UUID projectId, UUID taskId , TaskUpdateDto taskUpdateDto) {
+    public TaskResponseDto updateTask(String userId, UUID projectId, UUID taskId , TaskUpdateDto taskUpdateDto) {
         return null;
     }
 
-    public void deleteTask(UUID userId, UUID projectId, UUID taskId) {
+    public void deleteTask(String userId, UUID projectId, UUID taskId) {
     }
 
-    public TaskResponseDto updateTaskPriority(UUID userId, UUID projectId, UUID taskId , UpdateTaskPriorityDto priorityDto) {
+    public TaskResponseDto updateTaskPriority(String userId, UUID projectId, UUID taskId , UpdateTaskPriorityDto priorityDto) {
         return null;
     }
 
-
-    public TaskResponseDto updateTaskAssignee(UUID userId, UUID projectId, UUID taskId , UpdateTaskAssigneeDto taskUpdateDto) {
+    public TaskResponseDto updateTaskAssignee(String userId, UUID projectId, UUID taskId , UpdateTaskAssigneeDto taskUpdateDto) {
         return null;
     }
 
