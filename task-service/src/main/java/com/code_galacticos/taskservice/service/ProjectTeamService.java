@@ -4,30 +4,44 @@ package com.code_galacticos.taskservice.service;
 import com.code_galacticos.taskservice.model.dto.team.AssignTaskDto;
 import com.code_galacticos.taskservice.model.dto.team.TeamMemberDto;
 import com.code_galacticos.taskservice.model.dto.team.UpdateRoleDto;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 @Service
-public interface ProjectTeamService {
-    List<TeamMemberDto> getProjectTeam(UUID userId, UUID projectId);
+public class ProjectTeamService {
+    public List<TeamMemberDto> getProjectTeam(UUID userId, UUID projectId){
+        return null;
+    }
 
-    TeamMemberDto addTeamMember(UUID userId, UUID projectId, TeamMemberDto memberDto);
+    public TeamMemberDto addTeamMember(UUID userId, UUID projectId, TeamMemberDto memberDto){
+        return null;
+    };
 
-    void removeTeamMember(UUID userId, UUID projectId, UUID memberId);
+    public void removeTeamMember(UUID userId, UUID projectId, UUID memberId){
+    }
 
-    TeamMemberDto updateMemberRole(UUID userId, UUID projectId, UUID memberId, UpdateRoleDto roleDto);
+    public TeamMemberDto updateMemberRole(UUID userId, UUID projectId, UUID memberId, UpdateRoleDto roleDto){
+        return null;
+    }
 
-    List<AssignTaskDto> getMemberTasks(UUID userId, UUID projectId, UUID memberId);
+    public List<AssignTaskDto> getMemberTasks(UUID userId, UUID projectId, UUID memberId){
+        return null;
+    }
 
-    AssignTaskDto assignTask(UUID userId, UUID projectId, UUID memberId, UUID taskId);
+    public AssignTaskDto assignTask(UUID userId, UUID projectId, UUID memberId, UUID taskId){
+        return null;
+    }
 
-    void unassignTask(UUID userId, UUID projectId, UUID memberId, UUID taskId);
+    public void unassignTask(UUID userId, UUID projectId, UUID memberId, UUID taskId){
+    }
 
-    List<TeamMemberDto> getAvailableMembers(UUID userId, UUID projectId);
+    public List<TeamMemberDto> getAvailableMembers(UUID userId, UUID projectId){
+        return null;
+    }
 
-    TeamMemberDto getMemberWorkload(UUID userId, UUID projectId, UUID memberId);
+    public TeamMemberDto getMemberWorkload(UUID userId, UUID projectId, UUID memberId){
+        return null;
+    }
 }
