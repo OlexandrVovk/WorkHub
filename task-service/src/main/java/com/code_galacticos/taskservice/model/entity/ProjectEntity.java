@@ -13,7 +13,6 @@ import java.util.UUID;
 @Table(name = "project_table")
 public class ProjectEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "project_uuid")
     private UUID id;
 

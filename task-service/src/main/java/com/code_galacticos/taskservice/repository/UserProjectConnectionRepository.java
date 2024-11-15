@@ -19,4 +19,8 @@ public interface UserProjectConnectionRepository extends JpaRepository<UserProje
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM UserProjectConnection c WHERE c.project.id = :projectId")
     void deleteAllByProjectId(@Param("projectId") UUID projectId);
+
+    @Modifying
+    @Query("DELETE FROM UserProjectConnection c WHERE c.user.id = :userId")
+    void deleteAllByUserId(@Param("userId") UUID userId);
 }
