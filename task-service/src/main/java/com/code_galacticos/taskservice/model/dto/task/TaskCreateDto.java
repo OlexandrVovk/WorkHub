@@ -1,4 +1,4 @@
-package com.code_galacticos.workhub.model.dto.taks;
+package com.code_galacticos.taskservice.model.dto.task;
 
 import lombok.Data;
 

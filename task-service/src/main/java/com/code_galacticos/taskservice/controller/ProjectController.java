@@ -1,9 +1,9 @@
-package com.code_galacticos.workhub.controller;
+package com.code_galacticos.taskservice.controller;
 
-import com.code_galacticos.workhub.model.dto.project.ProjectCreateDto;
-import com.code_galacticos.workhub.model.dto.project.ProjectResponseDto;
-import com.code_galacticos.workhub.model.dto.project.ProjectUpdateDto;
-import com.code_galacticos.workhub.service.ProjectService;
+import com.code_galacticos.taskservice.model.dto.project.ProjectCreateDto;
+import com.code_galacticos.taskservice.model.dto.project.ProjectResponseDto;
+import com.code_galacticos.taskservice.model.dto.project.ProjectUpdateDto;
+import com.code_galacticos.taskservice.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

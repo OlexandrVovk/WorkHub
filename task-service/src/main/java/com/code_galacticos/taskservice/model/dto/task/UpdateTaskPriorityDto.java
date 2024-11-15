@@ -1,11 +1,11 @@
-package com.code_galacticos.workhub.model.dto.project;
+package com.code_galacticos.taskservice.model.dto.task;
 
 import lombok.Data;
 
 import java.util.UUID;
 
 @Data
-public class ProjectUpdateDto {
+public class UpdateTaskPriorityDto {
     private UUID id;
     private String name;
     private String description;

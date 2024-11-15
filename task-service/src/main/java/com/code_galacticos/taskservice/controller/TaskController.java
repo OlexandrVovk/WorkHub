@@ -1,7 +1,7 @@
-package com.code_galacticos.workhub.controller;
+package com.code_galacticos.taskservice.controller;
 
-import com.code_galacticos.workhub.model.dto.taks.*;
-import com.code_galacticos.workhub.service.TaskService;
+import com.code_galacticos.taskservice.model.dto.task.*;
+import com.code_galacticos.taskservice.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
