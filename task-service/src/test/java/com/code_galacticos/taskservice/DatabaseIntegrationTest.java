@@ -172,4 +172,136 @@ class DatabaseIntegrationTest {
         assertTrue(taskRepository.findAllByProjectId(testProjectId).isEmpty());
         assertTrue(connectionRepository.findAllByProjectId(testProjectId).isEmpty());
     }
+    @Test
+    @Order(9)
+    void testTaskAssigneeNullAfterUserDeletion() {
+        // Create new user
+        UserEntity secondUser = new UserEntity();
+        secondUser.setEmail("test2@example.com");
+        secondUser.setFirstName("Jane");
+        secondUser.setLastName("Smith");
+        UserEntity savedSecondUser = userRepository.save(secondUser);
+
+        // Update task assignee
+        TaskEntity task = taskRepository.findAllByProjectId(testProjectId).get(0);
+        task.setAssignee(savedSecondUser);
+        taskRepository.save(task);
+
+        // Verify assignee set
+        TaskEntity updatedTask = taskRepository.findById(task.getId()).orElseThrow();
+        assertEquals(savedSecondUser.getId(), updatedTask.getAssignee().getId());
+
+        // Delete user
+        userRepository.deleteById(savedSecondUser.getId());
+
+        // Verify assignee is null
+        TaskEntity taskAfterUserDeletion = taskRepository.findById(task.getId()).orElseThrow();
+        assertNull(taskAfterUserDeletion.getAssignee());
+    }
+
+    @Test
+    @Order(10)
+    void testTaskReporterNullAfterUserDeletion() {
+        // Create new user
+        UserEntity thirdUser = new UserEntity();
+        thirdUser.setEmail("test3@example.com");
+        thirdUser.setFirstName("Bob");
+        thirdUser.setLastName("Johnson");
+        UserEntity savedThirdUser = userRepository.save(thirdUser);
+
+        // Update task reporter
+        TaskEntity task = taskRepository.findAllByProjectId(testProjectId).get(0);
+        task.setReporter(savedThirdUser);
+        taskRepository.save(task);
+
+        // Verify reporter set
+        TaskEntity updatedTask = taskRepository.findById(task.getId()).orElseThrow();
+        assertEquals(savedThirdUser.getId(), updatedTask.getReporter().getId());
+
+        // Delete user
+        userRepository.deleteById(savedThirdUser.getId());
+
+        // Verify reporter is null
+        TaskEntity taskAfterUserDeletion = taskRepository.findById(task.getId()).orElseThrow();
+        assertNull(taskAfterUserDeletion.getReporter());
+    }
+    @Test
+    @Order(11)
+    void testUpdateProject() {
+        // Find existing project
+        ProjectEntity project = projectRepository.findById(testProjectId).orElseThrow();
+
+        // Store original values for comparison
+        String originalName = project.getName();
+        String originalDescription = project.getDescription();
+        ProjectStatus originalStatus = project.getStatus();
+
+        // Update project fields
+        project.setName("Updated Project Name");
+        project.setDescription("Updated project description");
+        project.setStatus(ProjectStatus.ON_HOLD);
+
+        // Save updated project
+        ProjectEntity updatedProject = projectRepository.save(project);
+
+        // Verify project was updated
+        assertNotNull(updatedProject);
+        assertEquals("Updated Project Name", updatedProject.getName());
+        assertEquals("Updated project description", updatedProject.getDescription());
+        assertEquals(ProjectStatus.ON_HOLD, updatedProject.getStatus());
+
+        // Verify original values were different
+        assertNotEquals(originalName, updatedProject.getName());
+        assertNotEquals(originalDescription, updatedProject.getDescription());
+        assertNotEquals(originalStatus, updatedProject.getStatus());
+
+        // Verify ID remained the same
+        assertEquals(testProjectId, updatedProject.getId());
+
+        // Verify data persists after fetching again
+        ProjectEntity fetchedProject = projectRepository.findById(testProjectId).orElseThrow();
+        assertEquals("Updated Project Name", fetchedProject.getName());
+        assertEquals("Updated project description", fetchedProject.getDescription());
+        assertEquals(ProjectStatus.ON_HOLD, fetchedProject.getStatus());
+    }
+    @Test
+    @Order(12)
+    @Transactional
+    void testUserProjectConnectionAfterUserDeletion() {
+        // Create new user
+        UserEntity newUser = new UserEntity();
+        newUser.setEmail("project.user@example.com");
+        newUser.setFirstName("Alice");
+        newUser.setLastName("Brown");
+        UserEntity savedUser = userRepository.save(newUser);
+
+        // Create new project for this test
+        ProjectEntity project = new ProjectEntity();
+        project.setName("Test Project for User Deletion");
+        project.setDescription("Test Description");
+        project.setStatus(ProjectStatus.ACTIVE);
+        ProjectEntity savedProject = projectRepository.save(project);
+
+        // Add user to project
+        UserProjectConnection connection = new UserProjectConnection();
+        connection.setUser(savedUser);
+        connection.setProject(savedProject);
+        connection.setRole(UserRole.MEMBER);
+        UserProjectConnection savedConnection = connectionRepository.save(connection);
+
+        // Store IDs for verification
+        UUID userId = savedUser.getId();
+        UUID projectId = savedProject.getId();
+        UUID connectionId = savedConnection.getId();
+
+        // Delete user
+        userRepository.deleteById(userId);
+
+        // Verify connection was deleted
+        assertFalse(connectionRepository.existsById(connectionId));
+        assertTrue(connectionRepository.findAllByProjectId(projectId).isEmpty());
+
+        // Clean up
+        projectRepository.deleteById(projectId);
+    }
 }
