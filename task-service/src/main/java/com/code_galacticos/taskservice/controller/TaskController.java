@@ -1,5 +1,6 @@
 package com.code_galacticos.taskservice.controller;
 
+import com.code_galacticos.taskservice.annotation.CurrentUser;
 import com.code_galacticos.taskservice.model.dto.task.*;
 import com.code_galacticos.taskservice.service.TaskService;
 import jakarta.validation.Valid;
@@ -20,14 +21,14 @@ public class TaskController {
 
     @GetMapping
     public ResponseEntity<List<TaskResponseDto>> getAllTasks(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId) {
         return ResponseEntity.ok(taskService.getAllTasks(userId, projectId));
     }
 
     @PostMapping
     public ResponseEntity<TaskResponseDto> createTask(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @Valid @RequestBody TaskCreateDto taskDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -36,7 +37,7 @@ public class TaskController {
 
     @GetMapping("/{taskId}")
     public ResponseEntity<TaskResponseDto> getTaskById(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID taskId) {
         return ResponseEntity.ok(taskService.getTaskById(userId, projectId, taskId));
@@ -44,7 +45,7 @@ public class TaskController {
 
     @PutMapping("/{taskId}")
     public ResponseEntity<TaskResponseDto> updateTask(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID taskId,
             @Valid @RequestBody TaskUpdateDto taskDto) {
@@ -53,7 +54,7 @@ public class TaskController {
 
     @DeleteMapping("/{taskId}")
     public ResponseEntity<Void> deleteTask(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID taskId) {
         taskService.deleteTask(userId, projectId, taskId);
@@ -62,7 +63,7 @@ public class TaskController {
 
     @PutMapping("/{taskId}/priority")
     public ResponseEntity<TaskResponseDto> updateTaskPriority(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID taskId,
             @Valid @RequestBody UpdateTaskPriorityDto priorityDto) {
@@ -71,7 +72,7 @@ public class TaskController {
 
     @PutMapping("/{taskId}/assignee")
     public ResponseEntity<TaskResponseDto> updateTaskAssignee(
-            @RequestHeader("user-id") UUID userId,
+            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID taskId,
             @Valid @RequestBody UpdateTaskAssigneeDto assigneeDto) {
