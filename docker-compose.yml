@@ -18,10 +18,7 @@ services:
       - "5432:5432"
 
   task-service:
-    build:
-      context: ./task-service
-      dockerfile: Dockerfile
-    image: progress-automation-back
+    image: oleksandrwowk/progress-automation-back:latest
     container_name: progress-automation-back
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/progress-automation-db
