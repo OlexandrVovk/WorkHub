@@ -28,16 +28,13 @@ public class ProjectService {
      * Creates a new project and establishes UserProjectConnection with OWNER role
      *
      * @param projectEntity Project details to create
-     * @param creatorUserId UUID of the user creating the project
      * @return Created ProjectEntity
      * @throws UserNotFoundException if creator user not found
      */
-    public ProjectEntity createProject(ProjectEntity projectEntity, UUID creatorUserId) {
-        // Get the creator user
-        UserEntity creator = userRepository.findById(creatorUserId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + creatorUserId));
-
+    public ProjectEntity createProject(ProjectEntity projectEntity, UserEntity creator) {
         // Save the project
+        UUID projectId = UUID.randomUUID();
+        projectEntity.setId(projectId);
         ProjectEntity savedProject = projectRepository.save(projectEntity);
 
         // Create UserProjectConnection with OWNER role

@@ -1,8 +1,10 @@
 package com.code_galacticos.taskservice.controller;
 
+import com.code_galacticos.taskservice.annotation.CurrentUser;
 import com.code_galacticos.taskservice.exception.ProjectNotFoundException;
 import com.code_galacticos.taskservice.exception.UserNotFoundException;
 import com.code_galacticos.taskservice.model.entity.ProjectEntity;
+import com.code_galacticos.taskservice.model.entity.UserEntity;
 import com.code_galacticos.taskservice.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,8 +28,8 @@ public class ProjectController {
      */
     @PostMapping
     public ResponseEntity<ProjectEntity> createProject(
-            @RequestBody ProjectEntity projectEntity,
-            @RequestHeader("user-d") UUID creatorUserId) {
+            @CurrentUser UserEntity creatorUserId,
+            @RequestBody ProjectEntity projectEntity) {
         ProjectEntity createdProject = projectService.createProject(projectEntity, creatorUserId);
         return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
     }

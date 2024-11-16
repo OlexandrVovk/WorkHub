@@ -1,6 +1,7 @@
 package com.code_galacticos.taskservice.firebase;
 
 import com.code_galacticos.taskservice.exception.TokenExpiredException;
+import com.code_galacticos.taskservice.model.entity.UserEntity;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +28,8 @@ public class FirebaseAuthInterceptor implements HandlerInterceptor {
 
         String token = authHeader.substring(7);
         try {
-            String userId = firebaseService.verifyToken(token);
-            request.setAttribute("user-id", userId);
+            UserEntity user = firebaseService.verifyToken(token);
+            request.setAttribute("user-id", user.getId());
             return true;
         } catch (TokenExpiredException e) {
             response.setStatus(TOKEN_EXPIRED_STATUS);

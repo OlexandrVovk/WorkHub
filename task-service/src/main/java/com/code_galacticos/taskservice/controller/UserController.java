@@ -1,5 +1,6 @@
 package com.code_galacticos.taskservice.controller;
 
+import com.code_galacticos.taskservice.annotation.CurrentUser;
 import com.code_galacticos.taskservice.model.entity.UserEntity;
 import com.code_galacticos.taskservice.service.UserService;
 import jakarta.validation.Valid;
@@ -23,8 +24,11 @@ public class UserController {
      * @return Created user
      */
     @PostMapping
-    public ResponseEntity<UserEntity> createUser(@Valid @RequestBody UserEntity userEntity) {
-        UserEntity createdUser = userService.createUser(userEntity);
+    public ResponseEntity<UserEntity> createUser(
+            @CurrentUser UUID currentId,
+            @Valid @RequestBody UserEntity userEntity
+    ) {
+        UserEntity createdUser = userService.createUser(currentId, userEntity);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
