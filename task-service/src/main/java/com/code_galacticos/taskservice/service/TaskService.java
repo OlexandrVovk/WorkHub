@@ -27,21 +27,13 @@ public class TaskService {
         return taskRepository.findAllByProjectId(projectId);
     }
 
-    public TaskEntity getTaskById(UUID projectId, UUID taskId) {
-        TaskEntity task = taskRepository.findById(taskId)
+    public TaskEntity getTaskById(UUID taskId) {
+        return taskRepository.findById(taskId)
                 .orElseThrow(() -> new EntityNotFoundException("Task not found"));
-
-        if (!task.getProject().getId().equals(projectId)) {
-            throw new SecurityException("Task does not belong to the specified project");
-        }
-
-        return task;
     }
 
-    public TaskEntity createTask(UUID projectId, TaskEntity taskEntity) {
-        ProjectEntity project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found"));
-
+    public TaskEntity createTask(TaskEntity taskEntity) {
+        ProjectEntity project = taskEntity.getProject();
         taskEntity.setId(UUID.randomUUID());
         taskEntity.setProject(project);
         taskEntity.setReporter(taskEntity.getReporter());
@@ -53,7 +45,7 @@ public class TaskService {
     }
 
     public TaskEntity updateTask(UUID userId, UUID projectId, UUID taskId , TaskEntity updatedTask) {
-        TaskEntity existingTask = getTaskById(projectId, taskId);
+        TaskEntity existingTask = getTaskById(taskId);
 
         existingTask.setName(updatedTask.getName());
         existingTask.setDescription(updatedTask.getDescription());
@@ -63,26 +55,26 @@ public class TaskService {
     }
 
     public void deleteTask(UUID projectId, UUID taskId) {
-        TaskEntity task = getTaskById(projectId, taskId);
+        TaskEntity task = getTaskById(taskId);
         taskRepository.delete(task);
     }
 
     public TaskEntity updateTaskPriority(UUID userId, UUID projectId, UUID taskId , TaskEntity taskUpdate) {
-        TaskEntity existingTask = getTaskById(projectId, taskId);
+        TaskEntity existingTask = getTaskById(taskId);
         existingTask.setPriority(taskUpdate.getPriority());
 
         return taskRepository.save(existingTask);
     }
 
     public TaskEntity updateTaskStatus(UUID userId, UUID projectId, UUID taskId , TaskEntity taskUpdate) {
-        TaskEntity existingTask = getTaskById(projectId, taskId);
+        TaskEntity existingTask = getTaskById(taskId);
         existingTask.setStatus(taskUpdate.getStatus());
 
         return taskRepository.save(existingTask);
     }
 
     public TaskEntity updateTaskAssignee(UUID userId, UUID projectId, UUID taskId , TaskEntity taskUpdate) {
-        TaskEntity existingTask = getTaskById(projectId, taskId);
+        TaskEntity existingTask = getTaskById(taskId);
 
         if (taskUpdate.getAssignee() != null) {
             UserEntity assignee = userRepository.findById(taskUpdate.getAssignee().getId())

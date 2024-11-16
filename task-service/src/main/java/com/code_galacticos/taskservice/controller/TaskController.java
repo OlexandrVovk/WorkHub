@@ -2,6 +2,7 @@ package com.code_galacticos.taskservice.controller;
 
 import com.code_galacticos.taskservice.annotation.CurrentUser;
 import com.code_galacticos.taskservice.model.entity.TaskEntity;
+import com.code_galacticos.taskservice.model.entity.UserEntity;
 import com.code_galacticos.taskservice.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class TaskController {
 
     private final TaskService taskService;
 
-    @GetMapping
+    @GetMapping("/{projectId}")
     public ResponseEntity<List<TaskEntity>> getAllTasks(
             @PathVariable UUID projectId) {
         return ResponseEntity.ok(taskService.getAllTasks(projectId));
@@ -27,18 +28,15 @@ public class TaskController {
 
     @PostMapping
     public ResponseEntity<TaskEntity> createTask(
-            @CurrentUser UUID userId,
-            @PathVariable UUID projectId,
             @Valid @RequestBody TaskEntity taskEntity) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(taskService.createTask(projectId, taskEntity));
+                .body(taskService.createTask(taskEntity));
     }
 
     @GetMapping("/{taskId}")
     public ResponseEntity<TaskEntity> getTaskById(
-            @PathVariable UUID projectId,
             @PathVariable UUID taskId) {
-        return ResponseEntity.ok(taskService.getTaskById(projectId, taskId));
+        return ResponseEntity.ok(taskService.getTaskById(taskId));
     }
 
     @PutMapping("/{taskId}")

@@ -45,12 +45,12 @@ public class ProjectUserConnectionController {
      * @param userId User UUID
      * @return List of projects
      */
-    @GetMapping("/users/{userId}/projects")
-    public ResponseEntity<List<ProjectEntity>> getUserProjects(
-            @PathVariable UUID userId) {
-        List<ProjectEntity> projects = projectUserConnectionService.getAllProjectsForUser(userId);
-        return ResponseEntity.ok(projects);
-    }
+//    @GetMapping("/users/{userId}/projects")
+//    public ResponseEntity<List<ProjectEntity>> getUserProjects(
+//            @PathVariable UUID userId) {
+//        List<ProjectEntity> projects = projectUserConnectionService.getAllProjectsForUser(userId);
+//        return ResponseEntity.ok(projects);
+//    }
 
     /**
      * Get user's role in a project

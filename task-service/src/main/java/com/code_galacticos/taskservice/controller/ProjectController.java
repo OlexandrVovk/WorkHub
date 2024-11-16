@@ -6,11 +6,13 @@ import com.code_galacticos.taskservice.exception.UserNotFoundException;
 import com.code_galacticos.taskservice.model.entity.ProjectEntity;
 import com.code_galacticos.taskservice.model.entity.UserEntity;
 import com.code_galacticos.taskservice.service.ProjectService;
+import com.code_galacticos.taskservice.service.ProjectUserConnectionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -18,6 +20,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ProjectController {
     private final ProjectService projectService;
+    private final ProjectUserConnectionService projectUserConnectionService;
 
     /**
      * Create a new project
@@ -46,6 +49,12 @@ public class ProjectController {
         return ResponseEntity.ok(project);
     }
 
+    @GetMapping
+    public ResponseEntity<List<ProjectEntity>> getUserProjects(
+            @CurrentUser UserEntity userEntity) {
+        List<ProjectEntity> projects = projectUserConnectionService.getAllProjectsForUser(userEntity.getId());
+        return ResponseEntity.ok(projects);
+    }
     /**
      * Update existing project
      *

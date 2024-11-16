@@ -23,12 +23,10 @@ public class UserService {
      * @throws UserAlreadyExistsException if email already exists
      */
     @Transactional
-    public UserEntity createUser(UUID userId ,UserEntity userEntity) {
+    public UserEntity createUser(UserEntity userEntity) {
         if (userRepository.existsByEmail(userEntity.getEmail())) {
             throw new UserAlreadyExistsException("User with email " + userEntity.getEmail() + " already exists");
         }
-
-        userEntity.setId(userId);
         return userRepository.save(userEntity);
     }
 
