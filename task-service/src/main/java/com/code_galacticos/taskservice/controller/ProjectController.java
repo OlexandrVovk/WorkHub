@@ -1,61 +1,104 @@
 package com.code_galacticos.taskservice.controller;
 
-import com.code_galacticos.taskservice.annotation.CurrentUser;
-import com.code_galacticos.taskservice.model.dto.project.ProjectCreateDto;
-import com.code_galacticos.taskservice.model.dto.project.ProjectResponseDto;
-import com.code_galacticos.taskservice.model.dto.project.ProjectUpdateDto;
+import com.code_galacticos.taskservice.exception.ProjectNotFoundException;
+import com.code_galacticos.taskservice.exception.UserNotFoundException;
+import com.code_galacticos.taskservice.model.entity.ProjectEntity;
 import com.code_galacticos.taskservice.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
-
-import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v2/projects")
+@RequestMapping("/api/v1/projects")
 @RequiredArgsConstructor
 public class ProjectController {
-
     private final ProjectService projectService;
 
-    @GetMapping
-    public ResponseEntity<List<ProjectResponseDto>> getAllProjects(
-            @CurrentUser UUID userId) {
-        return ResponseEntity.ok(projectService.getAllProjects(userId));
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ProjectResponseDto> getProjectById(
-            @CurrentUser UUID userId,
-            @PathVariable UUID id) {
-        return ResponseEntity.ok(projectService.getProjectById(userId, id));
-    }
-
+    /**
+     * Create a new project
+     *
+     * @param projectEntity Project details
+     * @param creatorUserId UUID of user creating the project (from header)
+     * @return Created project
+     */
     @PostMapping
-    public ResponseEntity<ProjectResponseDto> createProject(
-            @CurrentUser UUID userId,
-            @Valid @RequestBody ProjectCreateDto projectDto) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(projectService.createProject(userId, projectDto));
+    public ResponseEntity<ProjectEntity> createProject(
+            @RequestBody ProjectEntity projectEntity,
+            @RequestHeader("User-Id") UUID creatorUserId) {
+        ProjectEntity createdProject = projectService.createProject(projectEntity, creatorUserId);
+        return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ProjectResponseDto> updateProject(
-            @CurrentUser UUID userId,
-            @PathVariable UUID id,
-            @Valid @RequestBody ProjectUpdateDto projectDto) {
-        return ResponseEntity.ok(projectService.updateProject(userId, id, projectDto));
+    /**
+     * Get project by ID
+     *
+     * @param projectId Project UUID
+     * @return Project if found
+     */
+    @GetMapping("/{projectId}")
+    public ResponseEntity<ProjectEntity> getProject(@PathVariable UUID projectId) {
+        ProjectEntity project = projectService.getProjectById(projectId);
+        return ResponseEntity.ok(project);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProject(
-            @CurrentUser UUID userId,
-            @PathVariable UUID id) {
-        projectService.deleteProject(userId, id);
+    /**
+     * Update existing project
+     *
+     * @param projectId     Project UUID
+     * @param projectEntity Updated project details
+     * @return Updated project
+     */
+    @PutMapping("/{projectId}")
+    public ResponseEntity<ProjectEntity> updateProject(
+            @PathVariable UUID projectId,
+            @RequestBody ProjectEntity projectEntity) {
+        // Ensure the path variable ID matches the entity ID
+        projectEntity.setId(projectId);
+        ProjectEntity updatedProject = projectService.updateProject(projectEntity);
+        return ResponseEntity.ok(updatedProject);
+    }
+
+    /**
+     * Delete project
+     *
+     * @param projectId Project UUID
+     * @return No content on success
+     */
+    @DeleteMapping("/{projectId}")
+    public ResponseEntity<Void> deleteProject(@PathVariable UUID projectId) {
+        projectService.deleteProject(projectId);
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * Exception handler for ProjectNotFoundException
+     */
+    @ExceptionHandler(ProjectNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleProjectNotFoundException(ProjectNotFoundException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage()
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Exception handler for UserNotFoundException
+     */
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage()
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
 }
+
+/**
+ * Error response class for consistent error handling
+ */
+record ErrorResponse(int status, String message) {}

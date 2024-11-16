@@ -1,45 +1,102 @@
 package com.code_galacticos.taskservice.service;
 
-import com.code_galacticos.taskservice.model.dto.project.ProjectCreateDto;
-import com.code_galacticos.taskservice.model.dto.project.ProjectResponseDto;
-import com.code_galacticos.taskservice.model.dto.project.ProjectUpdateDto;
+import com.code_galacticos.taskservice.exception.ProjectNotFoundException;
+import com.code_galacticos.taskservice.exception.UserNotFoundException;
+import com.code_galacticos.taskservice.model.entity.ProjectEntity;
+import com.code_galacticos.taskservice.model.entity.UserEntity;
+import com.code_galacticos.taskservice.model.entity.UserProjectConnection;
+import com.code_galacticos.taskservice.model.enums.UserRole;
 import com.code_galacticos.taskservice.repository.ProjectRepository;
 import com.code_galacticos.taskservice.repository.TaskRepository;
 import com.code_galacticos.taskservice.repository.UserProjectConnectionRepository;
-import jakarta.transaction.Transactional;
+import com.code_galacticos.taskservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ProjectService {
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
-    private final UserProjectConnectionRepository connectionRepository;
+    private final UserProjectConnectionRepository userProjectConnectionRepository;
+    private final UserRepository userRepository;
 
+    /**
+     * Creates a new project and establishes UserProjectConnection with OWNER role
+     *
+     * @param projectEntity Project details to create
+     * @param creatorUserId UUID of the user creating the project
+     * @return Created ProjectEntity
+     * @throws UserNotFoundException if creator user not found
+     */
+    public ProjectEntity createProject(ProjectEntity projectEntity, UUID creatorUserId) {
+        // Get the creator user
+        UserEntity creator = userRepository.findById(creatorUserId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + creatorUserId));
 
+        // Save the project
+        ProjectEntity savedProject = projectRepository.save(projectEntity);
 
-    public List<ProjectResponseDto> getAllProjects(UUID userId) {
-        return Collections.emptyList();
+        // Create UserProjectConnection with OWNER role
+        UserProjectConnection connection = new UserProjectConnection();
+        connection.setId(UUID.randomUUID());
+        connection.setProject(savedProject);
+        connection.setUser(creator);
+        connection.setRole(UserRole.OWNER);
+        userProjectConnectionRepository.save(connection);
+
+        return savedProject;
     }
 
-    public ProjectResponseDto getProjectById(UUID userId, UUID projectId) {
-        return null;
+    /**
+     * Retrieves project by ID
+     *
+     * @param projectId Project's UUID
+     * @return ProjectEntity
+     * @throws ProjectNotFoundException if project not found
+     */
+    public ProjectEntity getProjectById(UUID projectId) {
+        return projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException("Project not found with id: " + projectId));
     }
 
-    public ProjectResponseDto createProject(UUID userId, ProjectCreateDto projectDto) {
-        return null;
+    /**
+     * Updates existing project
+     * Only updates the project entity itself, doesn't modify any connections
+     *
+     * @param projectEntity Updated project entity
+     * @return Updated ProjectEntity
+     * @throws ProjectNotFoundException if project not found
+     */
+    public ProjectEntity updateProject(ProjectEntity projectEntity) {
+        // Verify project exists
+        if (!projectRepository.existsById(projectEntity.getId())) {
+            throw new ProjectNotFoundException("Project not found with id: " + projectEntity.getId());
+        }
+        return projectRepository.save(projectEntity);
     }
 
-    public ProjectResponseDto updateProject(UUID userId, UUID projectId, ProjectUpdateDto projectDto) {
-        return null;
-    }
+    /**
+     * Deletes project and all related data (tasks and user connections)
+     *
+     * @param projectId ID of project to delete
+     * @throws ProjectNotFoundException if project not found
+     */
+    public void deleteProject(UUID projectId) {
+        if (!projectRepository.existsById(projectId)) {
+            throw new ProjectNotFoundException("Project not found with id: " + projectId);
+        }
 
-    public void deleteProject(UUID userId, UUID projectId) {
+        // Delete all related tasks first
+        taskRepository.deleteAllByProjectId(projectId);
+
+        // Delete all user-project connections
+        userProjectConnectionRepository.deleteAllByProjectId(projectId);
+
+        // Finally delete the project
+        projectRepository.deleteByProjectId(projectId);
     }
 }
