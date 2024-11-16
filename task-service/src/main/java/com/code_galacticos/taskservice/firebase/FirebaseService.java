@@ -1,4 +1,5 @@
 package com.code_galacticos.taskservice.firebase;
+import com.code_galacticos.taskservice.exception.TokenExpiredException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
@@ -15,17 +16,10 @@ public class FirebaseService {
             return decodedToken.getUid();
         } catch (FirebaseAuthException e) {
             log.error("Firebase token verification failed", e);
+            if (e.getMessage().contains("expired")) {
+                throw new TokenExpiredException("Token has expired. Please refresh your token.");
+            }
             throw new RuntimeException("Invalid token");
-        }
-    }
-
-    public boolean validateUser(String uid) {
-        try {
-            FirebaseAuth.getInstance().getUser(uid);
-            return true;
-        } catch (FirebaseAuthException e) {
-            log.error("Firebase user validation failed", e);
-            return false;
         }
     }
 }

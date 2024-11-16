@@ -27,7 +27,7 @@ public class ProjectController {
     @PostMapping
     public ResponseEntity<ProjectEntity> createProject(
             @RequestBody ProjectEntity projectEntity,
-            @RequestHeader("user-Id") UUID creatorUserId) {
+            @RequestHeader("user-d") UUID creatorUserId) {
         ProjectEntity createdProject = projectService.createProject(projectEntity, creatorUserId);
         return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
     }
