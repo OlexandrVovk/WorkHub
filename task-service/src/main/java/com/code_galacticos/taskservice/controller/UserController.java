@@ -27,11 +27,6 @@ public class UserController {
                 .body(userService.createUser(userEntity));
     }
 
-    @GetMapping
-    public ResponseEntity<List<UserEntity>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<UserEntity> getUserById(
             @CurrentUser UUID userId) {
