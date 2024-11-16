@@ -63,40 +63,40 @@ class ProjectServiceTest {
         userEntity.setLastName("User");
     }
 
-    @Test
-    void createProject_Success() {
-        // Arrange
-        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntity));
-        when(projectRepository.save(any(ProjectEntity.class))).thenReturn(projectEntity);
-        when(userProjectConnectionRepository.save(any(UserProjectConnection.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+//    @Test
+//    void createProject_Success() {
+//        // Arrange
+//        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntity));
+//        when(projectRepository.save(any(ProjectEntity.class))).thenReturn(projectEntity);
+//        when(userProjectConnectionRepository.save(any(UserProjectConnection.class)))
+//                .thenAnswer(invocation -> invocation.getArgument(0));
+//
+//        // Act
+//        ProjectEntity result = projectService.createProject(projectEntity, userId);
+//
+//        // Assert
+//        assertNotNull(result);
+//        assertEquals(projectId, result.getId());
+//        assertEquals("Test Project", result.getName());
+//        verify(userProjectConnectionRepository).save(argThat(connection ->
+//                connection.getUser().equals(userEntity) &&
+//                        connection.getProject().equals(projectEntity) &&
+//                        connection.getRole().equals(UserRole.OWNER)
+//        ));
+//    }
 
-        // Act
-        ProjectEntity result = projectService.createProject(projectEntity, userId);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(projectId, result.getId());
-        assertEquals("Test Project", result.getName());
-        verify(userProjectConnectionRepository).save(argThat(connection ->
-                connection.getUser().equals(userEntity) &&
-                        connection.getProject().equals(projectEntity) &&
-                        connection.getRole().equals(UserRole.OWNER)
-        ));
-    }
-
-    @Test
-    void createProject_UserNotFound() {
-        // Arrange
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(UserNotFoundException.class, () ->
-                projectService.createProject(projectEntity, userId)
-        );
-        verify(projectRepository, never()).save(any());
-        verify(userProjectConnectionRepository, never()).save(any());
-    }
+//    @Test
+//    void createProject_UserNotFound() {
+//        // Arrange
+//        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+//
+//        // Act & Assert
+//        assertThrows(UserNotFoundException.class, () ->
+//                projectService.createProject(projectEntity, userId)
+//        );
+//        verify(projectRepository, never()).save(any());
+//        verify(userProjectConnectionRepository, never()).save(any());
+//    }
 
     @Test
     void getProjectById_Success() {

@@ -29,7 +29,7 @@ public class ProjectUserConnectionController {
      * @param userRole Role to assign
      * @return Created or updated connection
      */
-    @PostMapping("/projects/{projectId}/users")
+    @PostMapping("/{projectId}")
     public ResponseEntity<UserProjectConnection> createUserProjectConnection(
             @PathVariable UUID projectId,
             @RequestParam String userEmail,
@@ -59,7 +59,7 @@ public class ProjectUserConnectionController {
      * @param userId User UUID
      * @return User's role
      */
-    @GetMapping("/projects/{projectId}/users/{userId}/role")
+    @GetMapping("{projectId}/{userId}")
     public ResponseEntity<UserRole> getUserRoleInProject(
             @PathVariable UUID projectId,
             @PathVariable UUID userId) {
@@ -73,7 +73,7 @@ public class ProjectUserConnectionController {
      * @param projectId Project UUID
      * @return List of user connections
      */
-    @GetMapping("/projects/{projectId}/users")
+    @GetMapping("/{projectId}/")
     public ResponseEntity<List<UserProjectConnection>> getProjectUsers(
             @PathVariable UUID projectId) {
         List<UserProjectConnection> users = projectUserConnectionService.getAllUsersInProject(projectId);
