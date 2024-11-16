@@ -94,6 +94,7 @@
     </build>
     <modules>
         <module>task-service</module>
+        <module>notification-service</module>
     </modules>
 
 </project>
