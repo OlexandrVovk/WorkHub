@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/projects")
+@RequestMapping("/api/v1/tasks")
 @RequiredArgsConstructor
 public class TaskController {
 
@@ -21,9 +21,8 @@ public class TaskController {
 
     @GetMapping
     public ResponseEntity<List<TaskEntity>> getAllTasks(
-            @CurrentUser UUID userId,
             @PathVariable UUID projectId) {
-        return ResponseEntity.ok(taskService.getAllTasks(userId, projectId));
+        return ResponseEntity.ok(taskService.getAllTasks(projectId));
     }
 
     @PostMapping
@@ -32,15 +31,14 @@ public class TaskController {
             @PathVariable UUID projectId,
             @Valid @RequestBody TaskEntity taskEntity) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(taskService.createTask(userId, projectId, taskEntity));
+                .body(taskService.createTask(projectId, taskEntity));
     }
 
     @GetMapping("/{taskId}")
     public ResponseEntity<TaskEntity> getTaskById(
-            @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID taskId) {
-        return ResponseEntity.ok(taskService.getTaskById(userId, projectId, taskId));
+        return ResponseEntity.ok(taskService.getTaskById(projectId, taskId));
     }
 
     @PutMapping("/{taskId}")
@@ -57,7 +55,7 @@ public class TaskController {
             @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID taskId) {
-        taskService.deleteTask(userId, projectId, taskId);
+        taskService.deleteTask(projectId, taskId);
         return ResponseEntity.noContent().build();
     }
 
