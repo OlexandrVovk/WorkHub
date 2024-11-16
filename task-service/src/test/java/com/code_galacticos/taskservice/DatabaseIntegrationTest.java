@@ -181,8 +181,6 @@ class DatabaseIntegrationTest {
     void testDeleteProject() {
         assertTrue(projectRepository.existsById(testProjectId));
 
-        taskRepository.deleteAllByProjectId(testProjectId);
-        connectionRepository.deleteAllByProjectId(testProjectId);
         projectRepository.deleteById(testProjectId);
 
         assertFalse(projectRepository.existsById(testProjectId));

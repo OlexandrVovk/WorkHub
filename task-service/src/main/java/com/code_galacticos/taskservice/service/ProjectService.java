@@ -22,16 +22,7 @@ public class ProjectService {
     private final TaskRepository taskRepository;
     private final UserProjectConnectionRepository connectionRepository;
 
-    public void deleteProject(UUID projectId) {
-        // First delete all associated tasks
-        taskRepository.deleteAllByProjectId(projectId);
 
-        // Then delete all user-project connections
-        connectionRepository.deleteAllByProjectId(projectId);
-
-        // Finally delete the project
-        projectRepository.deleteById(projectId);
-    }
 
     public List<ProjectResponseDto> getAllProjects(UUID userId) {
         return Collections.emptyList();
