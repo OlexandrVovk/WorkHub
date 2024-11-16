@@ -1,7 +1,7 @@
 package com.code_galacticos.taskservice.controller;
 
 import com.code_galacticos.taskservice.annotation.CurrentUser;
-import com.code_galacticos.taskservice.model.dto.task.*;
+import com.code_galacticos.taskservice.model.entity.TaskEntity;
 import com.code_galacticos.taskservice.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,23 +20,23 @@ public class TaskController {
     private final TaskService taskService;
 
     @GetMapping
-    public ResponseEntity<List<TaskResponseDto>> getAllTasks(
+    public ResponseEntity<List<TaskEntity>> getAllTasks(
             @CurrentUser UUID userId,
             @PathVariable UUID projectId) {
         return ResponseEntity.ok(taskService.getAllTasks(userId, projectId));
     }
 
     @PostMapping
-    public ResponseEntity<TaskResponseDto> createTask(
+    public ResponseEntity<TaskEntity> createTask(
             @CurrentUser UUID userId,
             @PathVariable UUID projectId,
-            @Valid @RequestBody TaskCreateDto taskDto) {
+            @Valid @RequestBody TaskEntity taskEntity) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(taskService.createTask(userId, projectId, taskDto));
+                .body(taskService.createTask(userId, projectId, taskEntity));
     }
 
     @GetMapping("/{taskId}")
-    public ResponseEntity<TaskResponseDto> getTaskById(
+    public ResponseEntity<TaskEntity> getTaskById(
             @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID taskId) {
@@ -44,12 +44,12 @@ public class TaskController {
     }
 
     @PutMapping("/{taskId}")
-    public ResponseEntity<TaskResponseDto> updateTask(
+    public ResponseEntity<TaskEntity> updateTask(
             @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID taskId,
-            @Valid @RequestBody TaskUpdateDto taskDto) {
-        return ResponseEntity.ok(taskService.updateTask(userId, projectId, taskId, taskDto));
+            @Valid @RequestBody TaskEntity taskEntity) {
+        return ResponseEntity.ok(taskService.updateTask(userId, projectId, taskId, taskEntity));
     }
 
     @DeleteMapping("/{taskId}")
@@ -62,20 +62,29 @@ public class TaskController {
     }
 
     @PutMapping("/{taskId}/priority")
-    public ResponseEntity<TaskResponseDto> updateTaskPriority(
+    public ResponseEntity<TaskEntity> updateTaskPriority(
             @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID taskId,
-            @Valid @RequestBody UpdateTaskPriorityDto priorityDto) {
-        return ResponseEntity.ok(taskService.updateTaskPriority(userId, projectId, taskId, priorityDto));
+            @Valid @RequestBody TaskEntity taskEntity) {
+        return ResponseEntity.ok(taskService.updateTaskPriority(userId, projectId, taskId, taskEntity));
+    }
+
+    @PutMapping("/{taskId}/status")
+    public ResponseEntity<TaskEntity> updateTaskStatus(
+            @CurrentUser UUID userId,
+            @PathVariable UUID projectId,
+            @PathVariable UUID taskId,
+            @Valid @RequestBody TaskEntity taskEntity) {
+        return ResponseEntity.ok(taskService.updateTaskStatus(userId, projectId, taskId, taskEntity));
     }
 
     @PutMapping("/{taskId}/assignee")
-    public ResponseEntity<TaskResponseDto> updateTaskAssignee(
+    public ResponseEntity<TaskEntity> updateTaskAssignee(
             @CurrentUser UUID userId,
             @PathVariable UUID projectId,
             @PathVariable UUID taskId,
-            @Valid @RequestBody UpdateTaskAssigneeDto assigneeDto) {
-        return ResponseEntity.ok(taskService.updateTaskAssignee(userId, projectId, taskId, assigneeDto));
+            @Valid @RequestBody TaskEntity taskEntity) {
+        return ResponseEntity.ok(taskService.updateTaskAssignee(userId, projectId, taskId, taskEntity));
     }
 }

@@ -1,6 +1,7 @@
 package com.code_galacticos.taskservice.service;
 
 import com.code_galacticos.taskservice.model.dto.task.*;
+import com.code_galacticos.taskservice.model.entity.TaskEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,30 +13,30 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TaskService {
 
-    public List<TaskResponseDto> getAllTasks(UUID userId, UUID projectId) {
+    public List<TaskEntity> getAllTasks(UUID userId, UUID projectId) {
         return Collections.emptyList();
     }
 
-    public TaskResponseDto getTaskById(UUID userId, UUID projectId, UUID taskId) {
+    public TaskEntity getTaskById(UUID userId, UUID projectId, UUID taskId) {
         return null;
     }
 
-    public TaskResponseDto createTask(UUID userId, UUID projectId, TaskCreateDto taskCreateDto) {
+    public TaskEntity createTask(UUID userId, UUID projectId, TaskEntity TaskEntity) {
         return null;
     }
 
-    public TaskResponseDto updateTask(UUID userId, UUID projectId, UUID taskId , TaskUpdateDto taskUpdateDto) {
+    public TaskEntity updateTask(UUID userId, UUID projectId, UUID taskId , TaskEntity TaskEntity) {
         return null;
     }
 
     public void deleteTask(UUID userId, UUID projectId, UUID taskId) {
     }
 
-    public TaskResponseDto updateTaskPriority(UUID userId, UUID projectId, UUID taskId , UpdateTaskPriorityDto priorityDto) {
+    public TaskEntity updateTaskPriority(UUID userId, UUID projectId, UUID taskId , TaskEntity TaskEntity) {
         return null;
     }
 
-    public TaskResponseDto updateTaskAssignee(UUID userId, UUID projectId, UUID taskId , UpdateTaskAssigneeDto taskUpdateDto) {
+    public TaskEntity updateTaskAssignee(UUID userId, UUID projectId, UUID taskId , TaskEntity TaskEntity) {
         return null;
     }
 
