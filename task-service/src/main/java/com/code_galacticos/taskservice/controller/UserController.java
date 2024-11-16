@@ -61,6 +61,7 @@ public class UserController {
      * @param userEntity Updated user details
      * @return Updated user
      */
+
     @PutMapping("/{userId}")
     public ResponseEntity<UserEntity> updateUser(
             @PathVariable UUID userId,

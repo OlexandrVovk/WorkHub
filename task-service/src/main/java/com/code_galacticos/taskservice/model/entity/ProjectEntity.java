@@ -4,6 +4,7 @@ import com.code_galacticos.taskservice.model.entity.convertor.ProjectStatusConve
 import com.code_galacticos.taskservice.model.enums.ProjectStatus;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.util.UUID;
 
@@ -13,6 +14,7 @@ import java.util.UUID;
 @Table(name = "project_table")
 public class ProjectEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "project_uuid")
     private UUID id;
 
