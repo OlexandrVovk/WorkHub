@@ -1,6 +1,5 @@
 package com.code_galacticos.taskservice.service;
 
-import com.code_galacticos.taskservice.model.dto.task.*;
 import com.code_galacticos.taskservice.model.entity.TaskEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,6 +32,10 @@ public class TaskService {
     }
 
     public TaskEntity updateTaskPriority(UUID userId, UUID projectId, UUID taskId , TaskEntity TaskEntity) {
+        return null;
+    }
+
+    public TaskEntity updateTaskStatus(UUID userId, UUID projectId, UUID taskId , TaskEntity TaskEntity) {
         return null;
     }
 
