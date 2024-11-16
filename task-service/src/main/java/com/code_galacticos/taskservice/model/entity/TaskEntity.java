@@ -6,6 +6,8 @@ import com.code_galacticos.taskservice.model.enums.TaskPriority;
 import com.code_galacticos.taskservice.model.enums.TaskStatus;
 import lombok.Data;
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -15,6 +17,7 @@ import java.util.UUID;
 @Table(name = "task_table")
 public class TaskEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "task_uuid")
     private UUID id;
 
@@ -34,12 +37,16 @@ public class TaskEntity {
 
     private LocalDateTime deadline;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assignation_uuid")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+
     private UserEntity assignee;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reporter_uuid")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+
     private UserEntity reporter;
 
     @ManyToOne

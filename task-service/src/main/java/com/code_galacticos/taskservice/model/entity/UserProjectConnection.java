@@ -11,6 +11,7 @@ import java.util.UUID;
 @Table(name = "user_proj_connection")
 public class UserProjectConnection {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "user_proj_con_uuid")
     private UUID id;
 

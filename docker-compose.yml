@@ -1,0 +1,38 @@
+networks:
+  mktxp: {}
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 2004
+      POSTGRES_DB: progress-automation-db
+    networks:
+      mktxp: null
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./task-service/src/main/resources/db/init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+
+  task-service:
+    build:
+      context: ./task-service
+      dockerfile: Dockerfile
+    image: progress-automation-back
+    container_name: progress-automation-back
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/progress-automation-db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 2004
+    networks:
+      mktxp: null
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:

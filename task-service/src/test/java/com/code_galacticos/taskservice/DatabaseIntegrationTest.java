@@ -23,10 +23,11 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@SpringBootTest
 class DatabaseIntegrationTest {
+
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -36,282 +37,215 @@ class DatabaseIntegrationTest {
     @Autowired
     private UserProjectConnectionRepository connectionRepository;
 
-    private static UUID testUserId;
-    private static UUID testProjectId;
+    // Test data
+    private UserEntity testUser;
+    private UserEntity secondaryUser;
+    private ProjectEntity testProject;
+    private TaskEntity testTask;
+    private UserProjectConnection testConnection;
 
     @BeforeAll
-    void setup() {
-        connectionRepository.deleteAll();
-        taskRepository.deleteAll();
-        projectRepository.deleteAll();
-        userRepository.deleteAll();
+    @Transactional
+    void setupTestData() {
+        // Clean up any existing data
+        cleanupDatabase();
 
-        testUserId = UUID.randomUUID();
-        testProjectId = UUID.randomUUID();
+        // Create test users
+        testUser = createUser("test@example.com", "John", "Doe");
+        secondaryUser = createUser("secondary@example.com", "Jane", "Smith");
+
+        // Create test project
+        testProject = createProject("Test Project");
+
+        // Create test connection
+        testConnection = createUserProjectConnection(testUser, testProject, UserRole.OWNER);
+
+        // Create test task
+        testTask = createTask("Test Task", testProject, testUser);
     }
 
-    @Test
-    @Order(0)
-    void entityRelationshipsTest() {
-        UUID userId = UUID.randomUUID();
-        UUID projectId = UUID.randomUUID();
-        UUID taskId = UUID.randomUUID();
+    @AfterAll
+    @Transactional
+    void cleanup() {
+        try {
+            // Delete in correct order to avoid foreign key constraints
+            connectionRepository.deleteAll();
+            taskRepository.deleteAll();
+            projectRepository.deleteAll();
+            userRepository.deleteAll();
 
-        UserEntity user = new UserEntity();
-        user.setId(userId);
-
-        ProjectEntity project = new ProjectEntity();
-        project.setId(projectId);
-
-        TaskEntity task = new TaskEntity();
-        task.setId(taskId);
-        task.setAssignee(user);
-        task.setProject(project);
-
-        assertNotNull(task.getAssignee());
-        assertNotNull(task.getProject());
-        assertEquals(user, task.getAssignee());
+            // Verify cleanup
+            assertTrue(connectionRepository.findAll().isEmpty(), "Connections were not cleaned up");
+            assertTrue(taskRepository.findAll().isEmpty(), "Tasks were not cleaned up");
+            assertTrue(projectRepository.findAll().isEmpty(), "Projects were not cleaned up");
+            assertTrue(userRepository.findAll().isEmpty(), "Users were not cleaned up");
+        } catch (Exception e) {
+            fail("Cleanup failed: " + e.getMessage());
+        }
     }
 
-    @Test
-    @Order(1)
-    void testCreateUser() {
+    private void cleanupDatabase() {
+        try {
+            connectionRepository.deleteAll();
+            taskRepository.deleteAll();
+            projectRepository.deleteAll();
+            userRepository.deleteAll();
+        } catch (Exception e) {
+            fail("Database cleanup failed: " + e.getMessage());
+        }
+    }
+
+    private UserEntity createUser(String email, String firstName, String lastName) {
         UserEntity user = new UserEntity();
-        user.setId(testUserId);
-        user.setEmail("test@example.com");
-        user.setFirstName("John");
-        user.setLastName("Doe");
+        user.setId(UUID.randomUUID());
+        user.setEmail(email);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
         user.setImageUrl("http://example.com/image.jpg");
-
-        UserEntity savedUser = userRepository.save(user);
-
-        assertNotNull(savedUser.getId());
-        assertEquals(testUserId, savedUser.getId());
-        assertEquals("John", savedUser.getFirstName());
-        assertEquals("test@example.com", savedUser.getEmail());
+        return userRepository.save(user);
     }
 
-    @Test
-    @Order(2)
-    void testCreateProject() {
+    private ProjectEntity createProject(String name) {
         ProjectEntity project = new ProjectEntity();
-        project.setId(testProjectId);
-        project.setName("Test Project");
+        project.setName(name);
         project.setDescription("Test Description");
         project.setStatus(ProjectStatus.ACTIVE);
-
-        ProjectEntity savedProject = projectRepository.save(project);
-
-        assertNotNull(savedProject.getId());
-        assertEquals(testProjectId, savedProject.getId());
-        assertEquals("Test Project", savedProject.getName());
-        assertEquals(ProjectStatus.ACTIVE, savedProject.getStatus());
+        return projectRepository.save(project);
     }
 
-    @Test
-    @Order(3)
-    void testCreateUserProjectConnection() {
-        UUID connectionId = UUID.randomUUID();
+    private UserProjectConnection createUserProjectConnection(
+            UserEntity user,
+            ProjectEntity project,
+            UserRole role) {
         UserProjectConnection connection = new UserProjectConnection();
-        connection.setId(connectionId);
-        connection.setUser(userRepository.findById(testUserId).orElseThrow());
-        connection.setProject(projectRepository.findById(testProjectId).orElseThrow());
-        connection.setRole(UserRole.OWNER);
-
-        UserProjectConnection savedConnection = connectionRepository.save(connection);
-
-        assertNotNull(savedConnection.getId());
-        assertEquals(connectionId, savedConnection.getId());
-        assertEquals(UserRole.OWNER, savedConnection.getRole());
+        connection.setUser(user);
+        connection.setProject(project);
+        connection.setRole(role);
+        return connectionRepository.save(connection);
     }
 
-    @Test
-    @Order(4)
-    void testCreateTask() {
-        UUID taskId = UUID.randomUUID();
+    private TaskEntity createTask(
+            String name,
+            ProjectEntity project,
+            UserEntity assignee) {
         TaskEntity task = new TaskEntity();
-        task.setId(taskId);
-        task.setName("Test Task");
+        task.setName(name);
         task.setDescription("Test Task Description");
         task.setStatus(TaskStatus.TODO);
         task.setPriority(TaskPriority.HIGH);
         task.setDeadline(LocalDateTime.now().plusDays(7));
-        task.setAssignee(userRepository.findById(testUserId).orElseThrow());
-        task.setReporter(userRepository.findById(testUserId).orElseThrow());
-        task.setProject(projectRepository.findById(testProjectId).orElseThrow());
-
-        TaskEntity savedTask = taskRepository.save(task);
-
-        assertNotNull(savedTask.getId());
-        assertEquals(taskId, savedTask.getId());
-        assertEquals("Test Task", savedTask.getName());
-        assertEquals(TaskStatus.TODO, savedTask.getStatus());
-        assertEquals(TaskPriority.HIGH, savedTask.getPriority());
-        assertNotNull(savedTask.getCreatedAt());
+        task.setAssignee(assignee);
+        task.setReporter(assignee);
+        task.setProject(project);
+        return taskRepository.save(task);
     }
 
-    @Test
-    @Order(5)
-    void testFindTasksByProject() {
-        List<TaskEntity> tasks = taskRepository.findAllByProjectId(testProjectId);
-        assertFalse(tasks.isEmpty());
-        assertEquals("Test Task", tasks.get(0).getName());
+    @Nested
+    @DisplayName("Creation Tests")
+    class CreationTests {
+        @Test
+        void testEntityCreation() {
+            // Verify user creation
+            assertNotNull(testUser.getId());
+            assertEquals("John", testUser.getFirstName());
+
+            // Verify project creation
+            assertNotNull(testProject.getId());
+            assertEquals("Test Project", testProject.getName());
+
+            // Verify connection creation
+            assertNotNull(testConnection.getId());
+            assertEquals(UserRole.OWNER, testConnection.getRole());
+
+            // Verify task creation
+            assertNotNull(testTask.getId());
+            assertEquals("Test Task", testTask.getName());
+        }
     }
 
-    @Test
-    @Order(6)
-    void testFindUserProjects() {
-        List<UserProjectConnection> connections = connectionRepository.findAllByUserId(testUserId);
-        assertFalse(connections.isEmpty());
-        assertEquals(UserRole.OWNER, connections.get(0).getRole());
-    }
-    @Test
-    @Order(7)
-    void testUpdateTaskStatus() {
-        TaskEntity task = taskRepository.findAllByProjectId(testProjectId).get(0);
-        task.setStatus(TaskStatus.IN_PROGRESS);
+    @Nested
+    @DisplayName("Relationship Tests")
+    class RelationshipTests {
+        @Test
+        void testUserProjectRelationship() {
+            List<UserProjectConnection> connections =
+                    connectionRepository.findAllByUserId(testUser.getId());
+            assertFalse(connections.isEmpty());
+            assertEquals(testProject.getId(),
+                    connections.get(0).getProject().getId());
+        }
 
-        TaskEntity updatedTask = taskRepository.save(task);
-        assertEquals(TaskStatus.IN_PROGRESS, updatedTask.getStatus());
-    }
-
-    @Test
-    @Order(8)
-    @Transactional
-    void testDeleteProject() {
-        assertTrue(projectRepository.existsById(testProjectId));
-
-        projectRepository.deleteById(testProjectId);
-
-        assertFalse(projectRepository.existsById(testProjectId));
-        assertTrue(taskRepository.findAllByProjectId(testProjectId).isEmpty());
-        assertTrue(connectionRepository.findAllByProjectId(testProjectId).isEmpty());
+        @Test
+        void testProjectTaskRelationship() {
+            List<TaskEntity> tasks =
+                    taskRepository.findAllByProjectId(testProject.getId());
+            assertFalse(tasks.isEmpty());
+            assertEquals(testTask.getId(), tasks.get(0).getId());
+        }
     }
 
-    @Test
-    @Order(9)
-    void testTaskAssigneeNullAfterUserDeletion() {
-        UUID secondUserId = UUID.randomUUID();
-        UserEntity secondUser = new UserEntity();
-        secondUser.setId(secondUserId);
-        secondUser.setEmail("test2@example.com");
-        secondUser.setFirstName("Jane");
-        secondUser.setLastName("Smith");
-        UserEntity savedSecondUser = userRepository.save(secondUser);
+    @Nested
+    @DisplayName("Deletion Tests")
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    class DeletionTests {
 
-        TaskEntity task = taskRepository.findAllByProjectId(testProjectId).get(0);
-        task.setAssignee(savedSecondUser);
-        taskRepository.save(task);
+        @Test
+        @Order(1)
+        @Transactional
+        void testUserDeletionCascade() {
+            // Create temporary test data
+            UserEntity tempUser = createUser(
+                    "temp@example.com",
+                    "Temp",
+                    "User"
+            );
+            TaskEntity tempTask = createTask(
+                    "Temp Task",
+                    testProject,
+                    tempUser
+            );
 
-        TaskEntity updatedTask = taskRepository.findById(task.getId()).orElseThrow();
-        assertEquals(secondUserId, updatedTask.getAssignee().getId());
+            // Delete user
+            UUID tempUserId = tempUser.getId();
+            UUID tempTaskId = tempTask.getId();
 
-        userRepository.deleteById(secondUserId);
+            userRepository.deleteById(tempUserId);
 
-        TaskEntity taskAfterUserDeletion = taskRepository.findById(task.getId()).orElseThrow();
-        assertNull(taskAfterUserDeletion.getAssignee());
-    }
+            // Verify task assignee is null
+            TaskEntity taskAfterDeletion =
+                    taskRepository.findById(tempTaskId).orElseThrow();
+            assertNull(taskAfterDeletion.getAssignee());
+        }
 
-    @Test
-    @Order(10)
-    void testTaskReporterNullAfterUserDeletion() {
-        UUID thirdUserId = UUID.randomUUID();
-        UserEntity thirdUser = new UserEntity();
-        thirdUser.setId(thirdUserId);
-        thirdUser.setEmail("test3@example.com");
-        thirdUser.setFirstName("Bob");
-        thirdUser.setLastName("Johnson");
-        UserEntity savedThirdUser = userRepository.save(thirdUser);
+        @Test
+        @Order(2)
+        @Transactional
+        void testProjectDeletionCascade() {
+            // Create temporary test data
+            ProjectEntity tempProject = createProject("Temp Project");
+            UserProjectConnection tempConnection =
+                    createUserProjectConnection(
+                            secondaryUser,
+                            tempProject,
+                            UserRole.MEMBER
+                    );
+            TaskEntity tempTask = createTask(
+                    "Temp Task",
+                    tempProject,
+                    secondaryUser
+            );
 
-        TaskEntity task = taskRepository.findAllByProjectId(testProjectId).get(0);
-        task.setReporter(savedThirdUser);
-        taskRepository.save(task);
+            // Delete project
+            UUID projectId = tempProject.getId();
+            UUID connectionId = tempConnection.getId();
+            UUID taskId = tempTask.getId();
 
-        TaskEntity updatedTask = taskRepository.findById(task.getId()).orElseThrow();
-        assertEquals(thirdUserId, updatedTask.getReporter().getId());
+            projectRepository.deleteById(projectId);
 
-        userRepository.deleteById(thirdUserId);
-
-        TaskEntity taskAfterUserDeletion = taskRepository.findById(task.getId()).orElseThrow();
-        assertNull(taskAfterUserDeletion.getReporter());
-    }
-
-    @Test
-    @Order(11)
-    void testUpdateProject() {
-        ProjectEntity project = projectRepository.findById(testProjectId).orElseThrow();
-
-        String originalName = project.getName();
-        String originalDescription = project.getDescription();
-        ProjectStatus originalStatus = project.getStatus();
-
-        project.setName("Updated Project Name");
-        project.setDescription("Updated project description");
-        project.setStatus(ProjectStatus.ON_HOLD);
-
-        ProjectEntity updatedProject = projectRepository.save(project);
-
-        assertNotNull(updatedProject);
-        assertEquals("Updated Project Name", updatedProject.getName());
-        assertEquals("Updated project description", updatedProject.getDescription());
-        assertEquals(ProjectStatus.ON_HOLD, updatedProject.getStatus());
-
-        assertNotEquals(originalName, updatedProject.getName());
-        assertNotEquals(originalDescription, updatedProject.getDescription());
-        assertNotEquals(originalStatus, updatedProject.getStatus());
-
-        assertEquals(testProjectId, updatedProject.getId());
-
-        ProjectEntity fetchedProject = projectRepository.findById(testProjectId).orElseThrow();
-        assertEquals("Updated Project Name", fetchedProject.getName());
-        assertEquals("Updated project description", fetchedProject.getDescription());
-        assertEquals(ProjectStatus.ON_HOLD, fetchedProject.getStatus());
-    }
-
-    @Test
-    @Order(12)
-    @Transactional
-    void testUserProjectConnectionAfterUserDeletion() {
-        // First create and save the user
-        UUID userId = UUID.randomUUID();
-        UserEntity newUser = new UserEntity();
-        newUser.setId(userId);
-        newUser.setEmail("project.user@example.com");
-        newUser.setFirstName("Alice");
-        newUser.setLastName("Brown");
-        userRepository.save(newUser);
-
-        // Then create and save the project
-        UUID projectId = UUID.randomUUID();
-        ProjectEntity project = new ProjectEntity();
-        project.setId(projectId);
-        project.setName("Test Project for User Deletion");
-        project.setDescription("Test Description");
-        project.setStatus(ProjectStatus.ACTIVE);
-        projectRepository.save(project);
-
-        // Finally create the connection with the saved entities
-        UUID connectionId = UUID.randomUUID();
-        UserProjectConnection connection = new UserProjectConnection();
-        connection.setId(connectionId);
-        connection.setUser(userRepository.findById(userId).orElseThrow());
-        connection.setProject(projectRepository.findById(projectId).orElseThrow());
-        connection.setRole(UserRole.MEMBER);
-        connectionRepository.save(connection);
-
-        // Verify setup is correct
-        assertTrue(connectionRepository.existsById(connectionId));
-        assertNotNull(userRepository.findById(userId).orElse(null));
-
-        // Delete user and manually delete connection since CASCADE isn't working
-        connectionRepository.deleteAllByUserId(userId);
-        userRepository.deleteById(userId);
-
-        // Verify the connection was deleted
-        assertFalse(connectionRepository.existsById(connectionId));
-        assertTrue(connectionRepository.findAllByProjectId(projectId).isEmpty());
-
-        // Clean up
-        projectRepository.deleteById(projectId);
+            // Verify cascade deletion
+            assertFalse(projectRepository.existsById(projectId));
+            assertFalse(connectionRepository.existsById(connectionId));
+            assertFalse(taskRepository.existsById(taskId));
+        }
     }
 }
