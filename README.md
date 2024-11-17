@@ -2,6 +2,15 @@
 
 A comprehensive task management system built with Spring Boot, featuring project management, task tracking, and email notifications.
 
+## API Endpoint
+
+The API is publicly available at:
+```
+http://20.215.40.193:8080
+```
+You can interact with the API directly through this endpoint.
+
+
 ## Features
 - Project management (create, update, delete projects)
 - Task tracking with priority and status
