@@ -16,81 +16,10 @@ A comprehensive task management system built with Spring Boot, featuring project
 
 ## Quick Start
 
-### 1. Create docker-compose.yml
-Create a new file named `docker-compose.yml` and copy the following configuration:
-
-```yaml
-networks:
-  mktxp: {}
-services:
-  postgres:
-    image: postgres:17
-    container_name: postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 2004
-      POSTGRES_DB: progress-automation-db
-    networks:
-      mktxp: null
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./task-service/src/main/resources/db/init:/docker-entrypoint-initdb.d
-    ports:
-      - "5432:5432"
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    networks:
-      mktxp: null
-    environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-  task-service:
-    image: vladmarvit/hackaton:progress-automation-back
-    container_name: progress-automation-back
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/progress-automation-db
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: 2004
-      SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: guest
-      SPRING_RABBITMQ_PASSWORD: guest
-    networks:
-      mktxp: null
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-      - rabbitmq
-  notification-service:
-    image: vladmarvit/hackaton:notification-service
-    container_name: notification-service
-    environment:
-      SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: guest
-      SPRING_RABBITMQ_PASSWORD: guest
-    networks:
-      mktxp: null
-    ports:
-      - "8081:8081"
-    depends_on:
-      - postgres
-      - rabbitmq
-volumes:
-  postgres_data:
-  rabbitmq_data:
+### 1. Build docker container
+Build a file named `docker-compose.yml`
+```bash
+docker-compose build
 ```
 
 ### 2. Launch the Services
