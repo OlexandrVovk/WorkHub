@@ -2,6 +2,7 @@ package com.code_galacticos.taskservice.service;
 
 import com.code_galacticos.taskservice.exception.ProjectNotFoundException;
 import com.code_galacticos.taskservice.exception.UserNotFoundException;
+import com.code_galacticos.taskservice.exception.UserProjectConnectionException;
 import com.code_galacticos.taskservice.model.entity.ProjectEntity;
 import com.code_galacticos.taskservice.model.entity.UserEntity;
 import com.code_galacticos.taskservice.model.entity.UserProjectConnection;
@@ -26,14 +27,17 @@ public class ProjectService {
     private final UserProjectConnectionRepository userProjectConnectionRepository;
     private final UserRepository userRepository;
     private final EmailNotificationSender emailNotificationSender;
+    private final EmailTemplateService emailTemplateService; // Add this
 
     /**
      * Creates a new project and establishes UserProjectConnection with OWNER role
      *
      * @param projectEntity Project details to create
+     * @param creator User creating the project
      * @return Created ProjectEntity
      * @throws UserNotFoundException if creator user not found
      */
+    @Transactional
     public ProjectEntity createProject(ProjectEntity projectEntity, UserEntity creator) {
         // Save the project
         UUID projectId = UUID.randomUUID();
@@ -47,14 +51,25 @@ public class ProjectService {
         connection.setUser(creator);
         connection.setRole(UserRole.OWNER);
         userProjectConnectionRepository.save(connection);
-        EmailNotificationMessage message = EmailNotificationMessage.builder()
-                        .to("olexandr.wowk@gmail.com")
-                        .subject("You created project: " + projectEntity.getName())
-                        .text("text")
-                        .build();
-        emailNotificationSender.sendEmailNotification(message);
+
+        // Send project creation notification to the creator
+        EmailNotificationMessage creationMessage = emailTemplateService.createProjectCreationEmail(
+                creator,
+                savedProject
+        );
+        emailNotificationSender.sendEmailNotification(creationMessage);
+
+        // Send project addition notification
+        EmailNotificationMessage additionMessage = emailTemplateService.createProjectAdditionEmail(
+                creator,
+                creator,
+                savedProject
+        );
+        emailNotificationSender.sendEmailNotification(additionMessage);
+
         return savedProject;
     }
+
 
     /**
      * Retrieves project by ID
@@ -104,4 +119,6 @@ public class ProjectService {
         // Finally delete the project
         projectRepository.deleteByProjectId(projectId);
     }
+
+
 }

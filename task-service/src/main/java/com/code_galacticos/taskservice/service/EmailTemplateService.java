@@ -14,6 +14,46 @@ public class EmailTemplateService {
     private static final String COMPANY_NAME = "Code Galacticos";
 
     /**
+     * Creates email notification for successful project creation
+     */
+    public EmailNotificationMessage createProjectCreationEmail(UserEntity projectOwner,
+                                                               ProjectEntity project) {
+        String subject = String.format("[%s] Project Successfully Created: %s",
+                COMPANY_NAME,
+                project.getName());
+
+        String body = String.format("""
+                Dear %s,
+                
+                Your new project has been successfully created!
+                
+                Project Details:
+                - Name: %s
+                - Description: %s
+                - Status: %s
+                
+                You are set as the project owner. You can now:
+                - Add team members
+                - Create and assign tasks
+                - Manage project settings
+                
+                Access your project dashboard to get started.
+                
+                Best regards,
+                %s Team""",
+                projectOwner.getFirstName(),
+                project.getName(),
+                project.getProjectDescription(),
+                project.getStatus(),
+                COMPANY_NAME);
+
+        return EmailNotificationMessage.builder()
+                .to(projectOwner.getEmail())
+                .subject(subject)
+                .text(body)
+                .build();
+    }
+    /**
      * Creates email notification for when a user is added to a project
      */
     public EmailNotificationMessage createProjectAdditionEmail(UserEntity addedUser,

@@ -24,6 +24,8 @@ public class TaskService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final EmailNotificationSender emailNotificationSender;
+    private final EmailTemplateService emailTemplateService; // Add this
+
 
 
     public List<TaskEntity> getAllTasks(UUID projectId) {
@@ -57,6 +59,7 @@ public class TaskService {
         return taskRepository.save(existingTask);
     }
 
+
     public void deleteTask( UUID taskId) {
         TaskEntity task = getTaskById(taskId);
         taskRepository.delete(task);
@@ -75,8 +78,7 @@ public class TaskService {
 
         return taskRepository.save(existingTask);
     }
-
-    public TaskEntity updateTaskAssignee(UUID taskId , TaskEntity taskUpdate) {
+    public TaskEntity updateTaskAssignee(UUID taskId, TaskEntity taskUpdate) {
         TaskEntity existingTask = getTaskById(taskId);
 
         if (taskUpdate.getAssignee() != null) {
@@ -84,17 +86,18 @@ public class TaskService {
                     .orElseThrow(() -> new EntityNotFoundException("Assignee not found"));
 
             existingTask.setAssignee(assignee);
-            EmailNotificationMessage emailNotificationMessage =
-                    EmailNotificationMessage.builder()
-                                    .to("olexandr.wowk@gmail.com")
-                                    .subject("you have new task")
-                                    .text("your task " + taskUpdate.getName())
-                            .build();
+
+            // Use EmailTemplateService to create the notification
+            EmailNotificationMessage emailNotificationMessage = emailTemplateService.createTaskAssignmentEmail(
+                    assignee,
+                    existingTask.getReporter(), // Assuming the reporter is the one assigning the task
+                    existingTask,
+                    existingTask.getProject()
+            );
             emailNotificationSender.sendEmailNotification(emailNotificationMessage);
         } else {
             existingTask.setAssignee(null);
         }
         return taskRepository.save(existingTask);
     }
-
 }

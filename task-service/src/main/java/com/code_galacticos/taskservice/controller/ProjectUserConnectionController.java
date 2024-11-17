@@ -96,6 +96,14 @@ public class ProjectUserConnectionController {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
+    @DeleteMapping("/{projectId}/users/{userEmail}")
+    public ResponseEntity<Void> deleteUserFromProject(
+            @PathVariable UUID projectId,
+            @PathVariable String userEmail) {
+        projectUserConnectionService.deleteUserFromProject(projectId, userEmail);
+        return ResponseEntity.noContent().build();
+    }
+
     /**
      * Exception handler for ProjectNotFoundException
      */
