@@ -55,4 +55,12 @@ public class TaskEntity {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    public String getTaskDescription() {
+        return description;
+    }
+
+    public String getTaskName() {
+        return name;
+    }
 }

@@ -4,6 +4,7 @@ import com.code_galacticos.taskservice.exception.ProjectNotFoundException;
 import com.code_galacticos.taskservice.exception.UserNotFoundException;
 import com.code_galacticos.taskservice.exception.UserProjectConnectionException;
 import com.code_galacticos.taskservice.model.entity.ProjectEntity;
+import com.code_galacticos.taskservice.model.entity.UserEntity;
 import com.code_galacticos.taskservice.model.entity.UserProjectConnection;
 import com.code_galacticos.taskservice.model.enums.UserRole;
 import com.code_galacticos.taskservice.service.ProjectUserConnectionService;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/project-connections")
@@ -73,10 +75,12 @@ public class ProjectUserConnectionController {
      * @param projectId Project UUID
      * @return List of user connections
      */
-    @GetMapping("/{projectId}/")
-    public ResponseEntity<List<UserProjectConnection>> getProjectUsers(
-            @PathVariable UUID projectId) {
-        List<UserProjectConnection> users = projectUserConnectionService.getAllUsersInProject(projectId);
+    @GetMapping("/{projectId}")
+    public ResponseEntity<List<UserEntity>> getProjectUsers(@PathVariable UUID projectId) {
+        List<UserProjectConnection> connections = projectUserConnectionService.getAllUsersInProject(projectId);
+        List<UserEntity> users = connections.stream()
+                .map(UserProjectConnection::getUser)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(users);
     }
 

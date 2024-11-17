@@ -3,6 +3,8 @@ package com.code_galacticos.taskservice.service;
 import com.code_galacticos.taskservice.model.entity.ProjectEntity;
 import com.code_galacticos.taskservice.model.entity.TaskEntity;
 import com.code_galacticos.taskservice.model.entity.UserEntity;
+import com.code_galacticos.taskservice.rabbit.EmailNotificationMessage;
+import com.code_galacticos.taskservice.rabbit.EmailNotificationSender;
 import com.code_galacticos.taskservice.repository.ProjectRepository;
 import com.code_galacticos.taskservice.repository.TaskRepository;
 import com.code_galacticos.taskservice.repository.UserRepository;
@@ -21,6 +23,7 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final EmailNotificationSender emailNotificationSender;
 
 
     public List<TaskEntity> getAllTasks(UUID projectId) {
@@ -32,9 +35,9 @@ public class TaskService {
                 .orElseThrow(() -> new EntityNotFoundException("Task not found"));
     }
 
-    public TaskEntity createTask(TaskEntity taskEntity) {
-        ProjectEntity project = taskEntity.getProject();
-        taskEntity.setId(UUID.randomUUID());
+    public TaskEntity createTask(TaskEntity taskEntity, UUID projectId) {
+        ProjectEntity project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new EntityNotFoundException("Project not found"));
         taskEntity.setProject(project);
         taskEntity.setReporter(taskEntity.getReporter());
         taskEntity.setStatus(taskEntity.getStatus());
@@ -44,7 +47,7 @@ public class TaskService {
         return taskRepository.save(taskEntity);
     }
 
-    public TaskEntity updateTask(UUID userId, UUID projectId, UUID taskId , TaskEntity updatedTask) {
+    public TaskEntity updateTask(UUID taskId , TaskEntity updatedTask) {
         TaskEntity existingTask = getTaskById(taskId);
 
         existingTask.setName(updatedTask.getName());
@@ -54,39 +57,40 @@ public class TaskService {
         return taskRepository.save(existingTask);
     }
 
-    public void deleteTask(UUID projectId, UUID taskId) {
+    public void deleteTask( UUID taskId) {
         TaskEntity task = getTaskById(taskId);
         taskRepository.delete(task);
     }
 
-    public TaskEntity updateTaskPriority(UUID userId, UUID projectId, UUID taskId , TaskEntity taskUpdate) {
+    public TaskEntity updateTaskPriority(UUID taskId , TaskEntity taskUpdate) {
         TaskEntity existingTask = getTaskById(taskId);
         existingTask.setPriority(taskUpdate.getPriority());
 
         return taskRepository.save(existingTask);
     }
 
-    public TaskEntity updateTaskStatus(UUID userId, UUID projectId, UUID taskId , TaskEntity taskUpdate) {
+    public TaskEntity updateTaskStatus(UUID taskId , TaskEntity taskUpdate) {
         TaskEntity existingTask = getTaskById(taskId);
         existingTask.setStatus(taskUpdate.getStatus());
 
         return taskRepository.save(existingTask);
     }
 
-    public TaskEntity updateTaskAssignee(UUID userId, UUID projectId, UUID taskId , TaskEntity taskUpdate) {
+    public TaskEntity updateTaskAssignee(UUID taskId , TaskEntity taskUpdate) {
         TaskEntity existingTask = getTaskById(taskId);
 
         if (taskUpdate.getAssignee() != null) {
             UserEntity assignee = userRepository.findById(taskUpdate.getAssignee().getId())
                     .orElseThrow(() -> new EntityNotFoundException("Assignee not found"));
-//            boolean isAssigneeInProject = ProjectUserConnectionService.findAllByProjectId(projectId).stream()
-//                    .anyMatch(connection -> connection.getUser().getId().equals(assignee.getId()));
-//
-//            if (!isAssigneeInProject) {
-//                throw new IllegalArgumentException("Assignee is not a member of the project");
-//            }
 
             existingTask.setAssignee(assignee);
+            EmailNotificationMessage emailNotificationMessage =
+                    EmailNotificationMessage.builder()
+                                    .to("olexandr.wowk@gmail.com")
+                                    .subject("you have new task")
+                                    .text("your task " + taskUpdate.getName())
+                            .build();
+            emailNotificationSender.sendEmailNotification(emailNotificationMessage);
         } else {
             existingTask.setAssignee(null);
         }

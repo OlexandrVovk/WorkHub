@@ -29,4 +29,7 @@ public class ProjectEntity {
     @Column(name = "project_description")
     private String description;
 
+    public String getProjectDescription() {
+        return description;
+    }
 }

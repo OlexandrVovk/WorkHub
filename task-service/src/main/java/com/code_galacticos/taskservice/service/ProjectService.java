@@ -6,6 +6,8 @@ import com.code_galacticos.taskservice.model.entity.ProjectEntity;
 import com.code_galacticos.taskservice.model.entity.UserEntity;
 import com.code_galacticos.taskservice.model.entity.UserProjectConnection;
 import com.code_galacticos.taskservice.model.enums.UserRole;
+import com.code_galacticos.taskservice.rabbit.EmailNotificationMessage;
+import com.code_galacticos.taskservice.rabbit.EmailNotificationSender;
 import com.code_galacticos.taskservice.repository.ProjectRepository;
 import com.code_galacticos.taskservice.repository.TaskRepository;
 import com.code_galacticos.taskservice.repository.UserProjectConnectionRepository;
@@ -23,6 +25,7 @@ public class ProjectService {
     private final TaskRepository taskRepository;
     private final UserProjectConnectionRepository userProjectConnectionRepository;
     private final UserRepository userRepository;
+    private final EmailNotificationSender emailNotificationSender;
 
     /**
      * Creates a new project and establishes UserProjectConnection with OWNER role
@@ -44,7 +47,12 @@ public class ProjectService {
         connection.setUser(creator);
         connection.setRole(UserRole.OWNER);
         userProjectConnectionRepository.save(connection);
-
+        EmailNotificationMessage message = EmailNotificationMessage.builder()
+                        .to("olexandr.wowk@gmail.com")
+                        .subject("You created project: " + projectEntity.getName())
+                        .text("text")
+                        .build();
+        emailNotificationSender.sendEmailNotification(message);
         return savedProject;
     }
 
