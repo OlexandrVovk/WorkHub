@@ -3,6 +3,7 @@ package com.code_galacticos.taskservice.controller;
 import com.code_galacticos.taskservice.annotation.CurrentUser;
 import com.code_galacticos.taskservice.model.entity.ProjectEntity;
 import com.code_galacticos.taskservice.model.entity.UserEntity;
+import com.code_galacticos.taskservice.model.enums.ProjectStatus;
 import com.code_galacticos.taskservice.service.ProjectService;
 import com.code_galacticos.taskservice.service.ProjectUserConnectionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -118,6 +119,31 @@ public class ProjectController {
         return ResponseEntity.ok(updatedProject);
     }
 
+    @Operation(
+            summary = "Update project status",
+            description = "Updates the status of an existing project"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Project status updated successfully",
+                    content = @Content(schema = @Schema(implementation = ProjectEntity.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Project not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            )
+    })
+    @PatchMapping("/{projectId}/status")
+    public ResponseEntity<ProjectEntity> updateProjectStatus(
+            @Parameter(description = "Project UUID", required = true)
+            @PathVariable UUID projectId,
+            @Parameter(description = "New project status", required = true)
+            @RequestBody ProjectStatus status) {
+        ProjectEntity updatedProject = projectService.updateProjectStatus(projectId, status);
+        return ResponseEntity.ok(updatedProject);
+    }
     @Operation(
             summary = "Delete project",
             description = "Deletes a project by its UUID"

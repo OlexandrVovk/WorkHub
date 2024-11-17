@@ -6,6 +6,7 @@ import com.code_galacticos.taskservice.exception.UserProjectConnectionException;
 import com.code_galacticos.taskservice.model.entity.ProjectEntity;
 import com.code_galacticos.taskservice.model.entity.UserEntity;
 import com.code_galacticos.taskservice.model.entity.UserProjectConnection;
+import com.code_galacticos.taskservice.model.enums.ProjectStatus;
 import com.code_galacticos.taskservice.model.enums.UserRole;
 import com.code_galacticos.taskservice.rabbit.EmailNotificationMessage;
 import com.code_galacticos.taskservice.rabbit.EmailNotificationSender;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.ErrorResponse;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -169,6 +171,31 @@ public class ProjectService {
 
         // Finally delete the project
         projectRepository.deleteByProjectId(projectId);
+    }
+
+    /**
+     * Updates the status of an existing project.
+     *
+     * @param projectId UUID of the project to update
+     * @param newStatus New status to set for the project
+     * @return Updated ProjectEntity
+     * @throws ProjectNotFoundException if no project exists with the given ID
+     */
+    @Transactional
+    @Operation(
+            summary = "Update project status",
+            description = "Updates only the status of an existing project"
+    )
+    public ProjectEntity updateProjectStatus(UUID projectId, ProjectStatus newStatus) {
+        ProjectEntity project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException("Project not found with id: " + projectId));
+
+        project.setStatus(newStatus);
+
+        // Send status update notification to all project members
+        List<UserProjectConnection> projectMembers = userProjectConnectionRepository.findAllByProjectId(projectId);
+
+        return projectRepository.save(project);
     }
 
 

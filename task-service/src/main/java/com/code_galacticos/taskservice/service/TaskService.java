@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.ErrorResponse;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 

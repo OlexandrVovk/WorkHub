@@ -3,6 +3,7 @@ package com.code_galacticos.taskservice.service;
 import com.code_galacticos.taskservice.exception.ProjectNotFoundException;
 import com.code_galacticos.taskservice.exception.UserNotFoundException;
 import com.code_galacticos.taskservice.exception.UserProjectConnectionException;
+import com.code_galacticos.taskservice.model.dto.project.ProjectUserConnectionDto;
 import com.code_galacticos.taskservice.model.entity.ProjectEntity;
 import com.code_galacticos.taskservice.model.entity.UserEntity;
 import com.code_galacticos.taskservice.model.entity.UserProjectConnection;
@@ -43,9 +44,8 @@ public class ProjectUserConnectionService {
      * If a connection already exists, updates the role.
      * Sends email notification to the user when added to a project.
      *
-     * @param userEmail email of the user to connect
+     * @param request ProjectUserConnectionDto containing user email and role
      * @param projectId UUID of the project
-     * @param userRole role to assign to the user in the project
      * @return Created or updated UserProjectConnection
      * @throws UserNotFoundException if user not found with given email
      * @throws ProjectNotFoundException if project not found with given ID
@@ -91,10 +91,10 @@ public class ProjectUserConnectionService {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             )
     })
-    public UserProjectConnection createProjectUserConnection(String userEmail, UUID projectId, UserRole userRole) {
+    public UserProjectConnection createProjectUserConnection(ProjectUserConnectionDto request, UUID projectId) {
         // Get user by email
-        UserEntity user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + userEmail));
+        UserEntity user = userRepository.findByEmail(request.getUserEmail())
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + request.getUserEmail()));
 
         // Get project by ID
         ProjectEntity project = projectRepository.findById(projectId)
@@ -110,14 +110,14 @@ public class ProjectUserConnectionService {
         // Check if connection already exists
         List<UserProjectConnection> existingConnections = userProjectConnectionRepository.findAllByProjectId(projectId);
         UserProjectConnection existingConnection = existingConnections.stream()
-                .filter(connection -> connection.getUser().getEmail().equals(userEmail))
+                .filter(connection -> connection.getUser().getEmail().equals(request.getUserEmail()))
                 .findFirst()
                 .orElse(null);
 
         UserProjectConnection savedConnection;
         if (existingConnection != null) {
             // Update existing connection with new role
-            existingConnection.setRole(userRole);
+            existingConnection.setRole(request.getUserRole());
             savedConnection = userProjectConnectionRepository.save(existingConnection);
         } else {
             // Create new connection
@@ -125,7 +125,7 @@ public class ProjectUserConnectionService {
             connection.setId(UUID.randomUUID());
             connection.setUser(user);
             connection.setProject(project);
-            connection.setRole(userRole);
+            connection.setRole(request.getUserRole());
             savedConnection = userProjectConnectionRepository.save(connection);
 
             // Use EmailTemplateService to create the notification
@@ -139,7 +139,6 @@ public class ProjectUserConnectionService {
 
         return savedConnection;
     }
-
     /**
      * Retrieves all projects associated with a specific user.
      *
@@ -185,7 +184,7 @@ public class ProjectUserConnectionService {
      * Cannot remove project owner - ownership must be transferred first.
      *
      * @param projectId Project UUID
-     * @param userEmail Email of the user to remove
+     * @param userId Email of the user to remove
      * @throws ProjectNotFoundException if project not found
      * @throws UserNotFoundException if user not found
      * @throws UserProjectConnectionException if:
@@ -223,20 +222,20 @@ public class ProjectUserConnectionService {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))
             )
     })
-    public void deleteUserFromProject(UUID projectId, String userEmail) {
+    public void deleteUserFromProject(UUID projectId, UUID userId) {
         // Get project
         ProjectEntity project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException("Project not found with id: " + projectId));
 
         // Get user
-        UserEntity userToRemove = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + userEmail));
+        UserEntity userToRemove = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
 
         // Find the connection
         UserProjectConnection connection = userProjectConnectionRepository
                 .findByProjectIdAndUserId(projectId, userToRemove.getId())
                 .orElseThrow(() -> new UserProjectConnectionException(
-                        "No connection found for user: " + userEmail + " in project: " + projectId));
+                        "No connection found for user: " + userId + " in project: " + projectId));
 
         // Check if user is the owner
         if (connection.getRole() == UserRole.OWNER) {
