@@ -77,8 +77,6 @@ services:
       - postgres
       - rabbitmq
 
-
-
 volumes:
   postgres_data:
   rabbitmq_data:
