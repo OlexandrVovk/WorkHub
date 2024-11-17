@@ -5,6 +5,7 @@ import com.code_galacticos.taskservice.model.entity.UserEntity;
 import com.code_galacticos.taskservice.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
