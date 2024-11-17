@@ -28,10 +28,11 @@ public class TaskController {
 
     @PostMapping("/{projectId}")
     public ResponseEntity<TaskEntity> createTask(
+            @CurrentUser UserEntity user,
             @PathVariable UUID projectId,
             @Valid @RequestBody TaskEntity taskEntity) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(taskService.createTask(taskEntity, projectId));
+                .body(taskService.createTask(user, taskEntity, projectId));
     }
 
     @GetMapping("/{taskId}")

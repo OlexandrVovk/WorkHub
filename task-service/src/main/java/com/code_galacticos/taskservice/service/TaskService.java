@@ -37,11 +37,11 @@ public class TaskService {
                 .orElseThrow(() -> new EntityNotFoundException("Task not found"));
     }
 
-    public TaskEntity createTask(TaskEntity taskEntity, UUID projectId) {
+    public TaskEntity createTask(UserEntity userEntity, TaskEntity taskEntity, UUID projectId) {
         ProjectEntity project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
         taskEntity.setProject(project);
-        taskEntity.setReporter(taskEntity.getReporter());
+        taskEntity.setReporter(userEntity);
         taskEntity.setStatus(taskEntity.getStatus());
         if (taskEntity.getPriority() == null) {
             taskEntity.setPriority(taskEntity.getPriority());
