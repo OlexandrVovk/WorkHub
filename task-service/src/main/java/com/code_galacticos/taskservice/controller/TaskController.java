@@ -20,7 +20,7 @@ public class TaskController {
 
     private final TaskService taskService;
 
-    @GetMapping("/{projectId}")
+    @GetMapping("/project/{projectId}")
     public ResponseEntity<List<TaskEntity>> getAllTasks(
             @PathVariable UUID projectId) {
         return ResponseEntity.ok(taskService.getAllTasks(projectId));

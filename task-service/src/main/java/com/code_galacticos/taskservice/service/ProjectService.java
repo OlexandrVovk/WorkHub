@@ -105,16 +105,17 @@ public class ProjectService {
      * @param projectId ID of project to delete
      * @throws ProjectNotFoundException if project not found
      */
+    @Transactional
     public void deleteProject(UUID projectId) {
         if (!projectRepository.existsById(projectId)) {
             throw new ProjectNotFoundException("Project not found with id: " + projectId);
         }
 
-        // Delete all related tasks first
-        taskRepository.deleteAllByProjectId(projectId);
-
-        // Delete all user-project connections
-        userProjectConnectionRepository.deleteAllByProjectId(projectId);
+//        // Delete all related tasks first
+//        taskRepository.deleteAllByProjectId(projectId);
+//
+//        // Delete all user-project connections
+//        userProjectConnectionRepository.deleteAllByProjectId(projectId);
 
         // Finally delete the project
         projectRepository.deleteByProjectId(projectId);

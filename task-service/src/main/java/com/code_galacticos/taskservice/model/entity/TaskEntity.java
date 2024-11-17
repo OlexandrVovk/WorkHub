@@ -37,19 +37,17 @@ public class TaskEntity {
 
     private LocalDateTime deadline;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "assignation_uuid")
     @OnDelete(action = OnDeleteAction.SET_NULL)
-
     private UserEntity assignee;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "reporter_uuid")
     @OnDelete(action = OnDeleteAction.SET_NULL)
-
     private UserEntity reporter;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_uuid")
     private ProjectEntity project;
 
