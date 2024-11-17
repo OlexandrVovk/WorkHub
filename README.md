@@ -1,55 +1,162 @@
-Create db:
-CREATE EXTENSION "uuid-ossp";  -- Enables UUID generation
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+# Task Management System API
 
+A comprehensive task management system built with Spring Boot, featuring project management, task tracking, and email notifications.
 
+## Features
+- Project management (create, update, delete projects)
+- Task tracking with priority and status
+- User management and role-based access control
+- Real-time email notifications via RabbitMQ
+- Firebase authentication integration
+- PostgreSQL database for data persistence
 
--- Enables UUID generation
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+## Prerequisites
+- Docker and Docker Compose
+- Port 5432 (PostgreSQL), 5672 & 15672 (RabbitMQ), 8080 (Task Service), and 8081 (Notification Service) must be available
 
-CREATE TYPE project_status AS ENUM ('ACTIVE', 'COMPLETED', 'ON_HOLD', 'CANCELLED');
-CREATE TYPE task_status AS ENUM ('TODO', 'IN_PROGRESS', 'DONE', 'IN_REVIEW', 'CANCELLED');
-CREATE TYPE task_priority AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'URGENT');
-CREATE TYPE user_role AS ENUM ('OWNER', 'TEAM_MANAGER', 'MEMBER');
+## Quick Start
 
-CREATE TABLE user_table (
-user_uuid UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-email VARCHAR(255) NOT NULL UNIQUE,
-first_name VARCHAR(100) NOT NULL,
-last_name VARCHAR(100) NOT NULL,
-image_url TEXT
-);
+### 1. Create docker-compose.yml
+Create a new file named `docker-compose.yml` and copy the following configuration:
 
-CREATE TABLE project_table (
-project_uuid UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-project_name VARCHAR(255) NOT NULL,
-project_status project_status NOT NULL DEFAULT 'ACTIVE',
-project_description TEXT
-);
+```yaml
+networks:
+  mktxp: {}
+services:
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 2004
+      POSTGRES_DB: progress-automation-db
+    networks:
+      mktxp: null
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./task-service/src/main/resources/db/init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      mktxp: null
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  task-service:
+    image: vladmarvit/hackaton:progress-automation-back
+    container_name: progress-automation-back
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/progress-automation-db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 2004
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    networks:
+      mktxp: null
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - rabbitmq
+  notification-service:
+    image: vladmarvit/hackaton:notification-service
+    container_name: notification-service
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    networks:
+      mktxp: null
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+      - rabbitmq
+volumes:
+  postgres_data:
+  rabbitmq_data:
+```
 
-CREATE TABLE task_table (
-task_uuid UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-task_name VARCHAR(255) NOT NULL,
-task_description TEXT,
-task_status task_status NOT NULL DEFAULT 'TODO',
-priority task_priority NOT NULL DEFAULT 'MEDIUM',
-deadline TIMESTAMP,
-assignation_uuid UUID REFERENCES user_table(user_uuid) ON DELETE SET NULL,
-reporter_uuid UUID REFERENCES user_table(user_uuid) ON DELETE SET NULL,
-project_uuid UUID REFERENCES project_table(project_uuid) ON DELETE CASCADE,
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+### 2. Launch the Services
+Open a terminal in the directory containing your `docker-compose.yml` file and run:
+```bash
+docker-compose up -d
+```
 
-CREATE TABLE user_proj_connection (
-user_proj_con_uuid UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-project_uuid UUID REFERENCES project_table(project_uuid) ON DELETE CASCADE,
-user_uuid UUID REFERENCES user_table(user_uuid) ON DELETE CASCADE,
-user_role user_role NOT NULL DEFAULT 'MEMBER',
-UNIQUE(project_uuid, user_uuid)
-);
+This command will:
+- Pull all required images from Docker Hub
+- Create necessary networks and volumes
+- Start all services in the correct order
 
-CREATE INDEX idx_task_project ON task_table(project_uuid);
-CREATE INDEX idx_task_assignee ON task_table(assignation_uuid);
-CREATE INDEX idx_task_reporter ON task_table(reporter_uuid);
-CREATE INDEX idx_user_proj_user ON user_proj_connection(user_uuid);
-CREATE INDEX idx_user_proj_project ON user_proj_connection(project_uuid);
+### 3. Verify Installation
+Check if all services are running:
+```bash
+docker-compose ps
+```
+
+## Accessing the Services
+
+### API Documentation
+- Swagger UI: http://localhost:8080/swagger-ui.html
+
+### RabbitMQ Management Console
+- URL: http://localhost:15672
+- Username: guest
+- Password: guest
+
+## Authentication
+The API uses Firebase Authentication. Include in each request:
+- Header: `Authorization: Bearer <firebase-token>`
+
+## Troubleshooting
+
+### Common Issues
+1. Port conflicts
+```bash
+# Check if ports are already in use
+netstat -an | grep "5432\|5672\|15672\|8080\|8081"
+```
+
+2. Service not starting
+```bash
+# Check service logs
+docker-compose logs <service-name>
+```
+
+### Restarting Services
+```bash
+# Restart all services
+docker-compose restart
+
+# Restart specific service
+docker-compose restart <service-name>
+```
+
+### Cleanup
+To stop and remove all containers, networks, and volumes:
+```bash
+docker-compose down -v
+```
+
+## Notes
+- All data is persisted in Docker volumes `postgres_data` and `rabbitmq_data`
+- The system uses Firebase for authentication - ensure you have proper Firebase configuration
+- Email notifications are handled asynchronously via RabbitMQ
+
+For additional support or issues, please contact the development team.
