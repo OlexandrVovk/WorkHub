@@ -18,7 +18,10 @@ services:
       - "5432:5432"
 
   task-service:
-    image: oleksandrwowk/progress-automation-back:latest
+    build:
+      context: ./task-service
+      dockerfile: Dockerfile
+    image: progress-automation-back
     container_name: progress-automation-back
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/progress-automation-db
@@ -30,6 +33,20 @@ services:
       - "8080:8080"
     depends_on:
       - postgres
+
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    image: notification-service
+    container_name: notification-service
+    networks:
+      mktxp: null
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+      - task-service
 
 volumes:
   postgres_data:
