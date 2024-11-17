@@ -85,6 +85,34 @@ public class TaskController {
     }
 
     @Operation(
+            summary = "Update task details",
+            description = "Updates basic task details including name, description, and deadline"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Task updated successfully",
+                    content = @Content(schema = @Schema(implementation = TaskEntity.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input data"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Task not found"
+            )
+    })
+    @PutMapping("/{taskId}")
+    public ResponseEntity<TaskEntity> updateTask(
+            @Parameter(description = "Task UUID", required = true)
+            @PathVariable UUID taskId,
+            @Parameter(description = "Updated task details", required = true)
+            @Valid @RequestBody TaskEntity taskEntity) {
+        return ResponseEntity.ok(taskService.updateTask(taskId, taskEntity));
+    }
+
+    @Operation(
             summary = "Get task by ID",
             description = "Retrieves a specific task by its UUID"
     )
